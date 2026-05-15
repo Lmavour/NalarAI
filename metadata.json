@@ -1,0 +1,8 @@
+{
+  "name": "Nalar.ai: Active AI Learning",
+  "description": "Tutor AI untuk pembelajaran aktif yang mendorong siswa berpikir kritis melalui metode sokratik, tantangan praktis, dan eksplorasi informasi.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

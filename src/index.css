@@ -1,0 +1,53 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "katex/dist/katex.min.css";
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  
+  --color-brand-primary: #58CC02;
+  --color-brand-secondary: #2B70C9;
+  --color-brand-accent: #FFC800;
+  --color-brand-error: #FF4B4B;
+}
+
+@layer base {
+  body {
+    @apply bg-white text-slate-800 antialiased overflow-x-hidden;
+  }
+}
+
+/* Duolingo style button/card effects */
+.btn-tactile {
+  @apply relative active:top-[2px] transition-all;
+  border-bottom-width: 4px;
+}
+
+.card-tactile {
+  @apply border-2 border-slate-200 rounded-2xl p-4 bg-white shadow-[0_4px_0_0_rgba(226,232,240,1)];
+}
+
+.ai-bubble {
+  @apply bg-white border-2 border-slate-200 rounded-2xl shadow-[0_4px_0_0_rgba(226,232,240,1)];
+}
+
+.user-bubble {
+  @apply bg-brand-primary border-2 border-green-600 rounded-2xl text-white shadow-[0_4px_0_0_rgba(22,163,74,1)];
+}
+
+.markdown-body {
+  @apply text-[15px] leading-relaxed space-y-3 font-medium;
+}
+
+.markdown-body p {
+  @apply mb-2;
+}
+
+.markdown-body ul, .markdown-body ol {
+  @apply pl-5 mb-2 list-disc;
+}
+
+.markdown-body h1, .markdown-body h2, .markdown-body h3 {
+  @apply font-extrabold mt-4 mb-2;
+}
