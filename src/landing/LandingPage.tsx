@@ -101,18 +101,18 @@ export default function LandingPage() {
           role="navigation"
           aria-label="Navigasi utama"
         >
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
-            <a href="/" className="flex items-center gap-2 group" aria-label="Nalar.ai — Halaman utama">
-              <div className="w-8 h-8 bg-brand-primary rounded-xl flex items-center justify-center shadow-[0_3px_0_0_rgb(22,163,74)] border-2 border-white group-hover:scale-105 transition-transform">
-                <Sparkles className="w-4 h-4 text-white" aria-hidden="true" />
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <a href="/" className="flex items-center gap-2.5 group" aria-label="Nalar.ai — Halaman utama">
+              <div className="w-9 h-9 bg-brand-primary rounded-xl flex items-center justify-center shadow-[0_3px_0_0_rgb(22,163,74)] border-2 border-white group-hover:scale-105 transition-transform">
+                <Sparkles className="w-4.5 h-4.5 text-white" aria-hidden="true" />
               </div>
-              <span className="text-lg font-black tracking-tight text-slate-800">
+              <span className="text-xl font-black tracking-tight text-slate-800">
                 Nalar<span className="text-brand-primary">.ai</span>
               </span>
             </a>
             <a
               href="/chat.html"
-              className="btn-tactile bg-brand-primary text-white font-bold px-5 py-2 rounded-xl border-b-[3px] border-green-700 hover:bg-green-600 active:bg-green-700 transition-colors text-sm flex items-center gap-2"
+              className="btn-tactile bg-brand-primary text-white font-bold px-5 py-2.5 rounded-xl border-b-[3px] border-green-700 hover:bg-green-600 active:bg-green-700 transition-colors text-sm flex items-center gap-2"
               aria-label="Mulai chat dengan tutor AI"
             >
               Mulai Sekarang
@@ -126,107 +126,149 @@ export default function LandingPage() {
       <main id="main-content">
         {/* ─── Hero Section ────────────────────────────────────────── */}
         <section
-          className="relative pt-10 sm:pt-16 lg:pt-20 pb-12 sm:pb-16 lg:pb-20"
+          className="relative pt-8 sm:pt-12 lg:pt-16 pb-10 sm:pb-14 lg:pb-16 overflow-hidden"
           aria-label="Hero"
         >
-          {/* Background decoration */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-            <div className="absolute -top-40 -right-40 w-[400px] h-[400px] bg-brand-primary/5 rounded-full blur-3xl" />
-            <div className="absolute -bottom-40 -left-40 w-[300px] h-[300px] bg-brand-secondary/5 rounded-full blur-3xl" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-brand-accent/3 rounded-full blur-3xl" />
-          </div>
+          {/* Subtle background gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-green-50/30 pointer-events-none" aria-hidden="true" />
+          {/* Subtle decorative blobs */}
+          <div className="absolute -top-32 -right-32 w-96 h-96 bg-brand-primary/3 rounded-full blur-3xl pointer-events-none" aria-hidden="true" />
+          <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-brand-secondary/3 rounded-full blur-3xl pointer-events-none" aria-hidden="true" />
 
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-            <div className="flex flex-col items-center text-center">
-              {/* Animated Logo */}
+            <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8 sm:gap-10 lg:gap-16">
+              
+              {/* ─── Left: Text Content ──────────────────────────── */}
               <motion.div
-                initial={{ scale: 0.6, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-                className="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 bg-brand-primary rounded-[28px] sm:rounded-[32px] flex items-center justify-center mb-6 sm:mb-8 shadow-[0_6px_0_0_rgb(22,163,74)] border-4 border-white relative"
+                initial={{ x: -30, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                className="flex-1 text-center lg:text-left"
+              >
+                {/* Brand badge */}
+                <div className="inline-flex items-center gap-2 bg-white border border-slate-200 rounded-full px-4 py-1.5 mb-5 sm:mb-6 shadow-sm">
+                  <div className="w-5 h-5 bg-brand-primary rounded-lg flex items-center justify-center">
+                    <Sparkles className="w-3 h-3 text-white" aria-hidden="true" />
+                  </div>
+                  <span className="text-xs font-bold text-slate-500 tracking-wide">Eksperimen Belajar Aktif</span>
+                </div>
+
+                {/* Heading */}
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-slate-800 mb-3 sm:mb-4 leading-[1.05]">
+                  Belajar dengan{' '}
+                  <span className="text-brand-primary">Nalar</span>
+                  <br />
+                  bukan sekadar{' '}
+                  <span className="relative inline-block">
+                    menghafal
+                    <svg className="absolute -bottom-1 left-0 w-full h-2 sm:h-3 text-brand-accent" viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true">
+                      <path d="M0 5 Q 25 0, 50 5 T 100 5" fill="none" stroke="#FFC800" strokeWidth="6" strokeLinecap="round" />
+                    </svg>
+                  </span>
+                </h1>
+
+                {/* Subtitle */}
+                <p className="text-base sm:text-lg text-slate-500 font-medium mb-6 sm:mb-8 max-w-md lg:max-w-none leading-relaxed">
+                  Tutor AI yang mendorong kamu <strong className="text-slate-700">berpikir kritis</strong> melalui metode sokratik — AI membimbing kamu menemukan jawaban sendiri, bukan memberikannya begitu saja.
+                </p>
+
+                {/* CTA Buttons */}
+                <div className="flex flex-col sm:flex-row items-center lg:items-start gap-2.5 sm:gap-3 mb-6 sm:mb-8">
+                  <a
+                    href="/chat.html"
+                    className="btn-tactile bg-brand-primary text-white font-bold px-6 sm:px-7 py-2.5 sm:py-3 rounded-2xl border-b-[4px] border-green-700 hover:bg-green-600 active:bg-green-700 active:top-[2px] transition-all text-base sm:text-lg flex items-center gap-2 shadow-lg w-full sm:w-auto justify-center"
+                    aria-label="Mulai belajar dengan Nalar.ai"
+                  >
+                    Mulai Sekarang — Gratis
+                    <ArrowRight className="w-5 h-5" aria-hidden="true" />
+                  </a>
+                  <a
+                    href="#features"
+                    className="btn-tactile bg-white text-slate-600 font-bold px-5 sm:px-6 py-2 sm:py-2.5 rounded-2xl border-b-[4px] border-slate-200 hover:bg-slate-50 active:bg-slate-100 active:top-[2px] transition-all text-sm sm:text-base border-2 border-slate-200 flex items-center gap-2 w-full sm:w-auto justify-center"
+                  >
+                    Pelajari Lebih Lanjut
+                  </a>
+                </div>
+
+                {/* Subject Tags */}
+                <div
+                  className="flex flex-wrap justify-center lg:justify-start gap-2"
+                  aria-label="Mata pelajaran yang tersedia"
+                  role="list"
+                >
+                  {SUBJECTS.map((s, i) => (
+                    <div
+                      key={i}
+                      className={`${s.color} border rounded-xl px-3 py-1.5 flex items-center gap-1.5 text-xs sm:text-sm font-bold`}
+                      role="listitem"
+                    >
+                      {s.icon}
+                      {s.text}
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+
+              {/* ─── Right: Visual Illustration ──────────────────── */}
+              <motion.div
+                initial={{ x: 30, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.15 }}
+                className="flex-1 flex items-center justify-center"
                 aria-hidden="true"
               >
-                <Sparkles className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 text-white" />
-                {/* Floating particles */}
-                <motion.div
-                  animate={{ y: [-6, 6, -6], x: [-3, 3, -3] }}
-                  transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                  className="absolute -top-2 -right-2 w-5 h-5 bg-brand-accent rounded-full border-2 border-white shadow-lg"
-                />
-                <motion.div
-                  animate={{ y: [4, -4, 4], x: [3, -3, 3] }}
-                  transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-                  className="absolute -bottom-1.5 -left-1.5 w-4 h-4 bg-brand-secondary rounded-full border-2 border-white shadow-lg"
-                />
-              </motion.div>
-
-              {/* Title */}
-              <motion.div
-                initial={{ y: 30, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.15 }}
-              >
-                <h1 className="fluid-text-hero font-black tracking-tight text-slate-800 mb-2 sm:mb-3">
-                  Nalar<span className="text-brand-primary">.ai</span>
-                </h1>
-                <p className="fluid-text-tag font-bold text-slate-400 uppercase tracking-[0.2em] sm:tracking-[0.25em] mb-4 sm:mb-6">
-                  Eksperimen Belajar Aktif
-                </p>
-              </motion.div>
-
-              {/* Subtitle */}
-              <motion.p
-                initial={{ y: 30, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.25 }}
-                className="fluid-text-subtitle text-slate-600 font-semibold mb-6 sm:mb-8 max-w-lg sm:max-w-xl leading-relaxed"
-              >
-                Tutor AI yang mendorong kamu <span className="text-brand-primary font-bold">berpikir kritis</span> — bukan sekadar menerima jawaban.
-              </motion.p>
-
-              {/* CTA Buttons */}
-              <motion.div
-                initial={{ y: 30, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.35 }}
-                className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4"
-              >
-                <a
-                  href="/chat.html"
-                  className="btn-tactile bg-brand-primary text-white font-bold px-6 sm:px-8 py-3 sm:py-3.5 rounded-2xl border-b-[4px] border-green-700 hover:bg-green-600 active:bg-green-700 active:top-[2px] transition-all text-base sm:text-lg flex items-center gap-2 shadow-lg"
-                  aria-label="Mulai belajar dengan Nalar.ai"
-                >
-                  Mulai Sekarang
-                  <ArrowRight className="w-5 h-5" aria-hidden="true" />
-                </a>
-                <a
-                  href="#features"
-                  className="btn-tactile bg-white text-slate-700 font-bold px-5 sm:px-6 py-2.5 sm:py-3 rounded-2xl border-b-[4px] border-slate-200 hover:bg-slate-50 active:bg-slate-100 active:top-[2px] transition-all text-sm sm:text-base border-2 border-slate-200 flex items-center gap-2"
-                >
-                  Pelajari Lebih Lanjut
-                </a>
-              </motion.div>
-
-              {/* Subject Tags */}
-              <motion.div
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.5 }}
-                className="flex flex-wrap justify-center gap-2 mt-8 sm:mt-10 max-w-md sm:max-w-lg"
-                aria-label="Mata pelajaran yang tersedia"
-                role="list"
-              >
-                {SUBJECTS.map((s, i) => (
-                  <div
-                    key={i}
-                    className={`${s.color} border rounded-xl px-3 py-1.5 flex items-center gap-1.5 text-xs sm:text-sm font-bold`}
-                    role="listitem"
-                  >
-                    {s.icon}
-                    {s.text}
+                <div className="relative w-56 h-56 sm:w-64 sm:h-64 lg:w-72 lg:h-72">
+                  {/* Main card */}
+                  <div className="absolute inset-0 bg-white rounded-[40px] shadow-xl border border-slate-100 flex items-center justify-center">
+                    <div className="w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32 bg-brand-primary rounded-[28px] sm:rounded-[32px] flex items-center justify-center shadow-[0_6px_0_0_rgb(22,163,74)]">
+                      <Sparkles className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 text-white" />
+                    </div>
                   </div>
-                ))}
+                  {/* Floating card 1 — Quiz */}
+                  <motion.div
+                    animate={{ y: [-4, 4, -4] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+                    className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 bg-white rounded-2xl shadow-lg border border-slate-100 px-3 py-2 flex items-center gap-2"
+                  >
+                    <div className="w-7 h-7 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <Target className="w-3.5 h-3.5 text-blue-600" />
+                    </div>
+                    <div>
+                      <div className="text-[10px] font-black text-slate-800 leading-none">Quiz</div>
+                      <div className="text-[8px] font-bold text-slate-400 leading-none">Interaktif</div>
+                    </div>
+                  </motion.div>
+                  {/* Floating card 2 — XP */}
+                  <motion.div
+                    animate={{ y: [3, -3, 3] }}
+                    transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+                    className="absolute -bottom-3 -left-3 sm:-bottom-4 sm:-left-4 bg-white rounded-2xl shadow-lg border border-slate-100 px-3 py-2 flex items-center gap-2"
+                  >
+                    <div className="w-7 h-7 bg-amber-100 rounded-lg flex items-center justify-center">
+                      <Trophy className="w-3.5 h-3.5 text-amber-600" />
+                    </div>
+                    <div>
+                      <div className="text-[10px] font-black text-slate-800 leading-none">+15 XP</div>
+                      <div className="text-[8px] font-bold text-slate-400 leading-none">Per tantangan</div>
+                    </div>
+                  </motion.div>
+                  {/* Floating card 3 — Socratic */}
+                  <motion.div
+                    animate={{ y: [-3, 3, -3] }}
+                    transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
+                    className="absolute top-1/2 -right-6 sm:-right-8 -translate-y-1/2 bg-white rounded-2xl shadow-lg border border-slate-100 px-3 py-2 flex items-center gap-2"
+                  >
+                    <div className="w-7 h-7 bg-purple-100 rounded-lg flex items-center justify-center">
+                      <BrainCircuit className="w-3.5 h-3.5 text-purple-600" />
+                    </div>
+                    <div>
+                      <div className="text-[10px] font-black text-slate-800 leading-none">Sokratik</div>
+                      <div className="text-[8px] font-bold text-slate-400 leading-none">Metode</div>
+                    </div>
+                  </motion.div>
+                </div>
               </motion.div>
+
             </div>
           </div>
         </section>
