@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Send, Trophy, Heart, Flame, Target, Award, Zap, Sparkles } from 'lucide-react';
+import { Send, Trophy, Heart, Flame, Target, Award, Zap, Sparkles, Home } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Message } from '../types';
 import MessageItem from './MessageItem';
@@ -164,9 +164,9 @@ export default function ChatInterface() {
               {/* LG Sidebar (Desktop Only) */}
         <aside className="hidden lg:flex flex-col w-[320px] border-r border-slate-100 bg-slate-50/50 p-8 pt-10 overflow-y-auto scrollbar-hide">
           <div className="mb-8">
-            <h1 className="text-2xl font-black tracking-tight text-slate-800 mb-6">
+            <a href="/" className="text-2xl font-black tracking-tight text-slate-800 mb-6 block hover:opacity-80 transition-opacity">
               Nalar<span className="text-brand-primary">.ai</span>
-            </h1>
+            </a>
             
             {/* Level Info */}
             <div className="bg-white rounded-3xl p-5 border-2 border-slate-100 shadow-[0_4px_0_0_rgb(241,245,249)] mb-5">
@@ -244,8 +244,11 @@ export default function ChatInterface() {
           {/* Header / Progress Bar */}
           <header className="flex-shrink-0 bg-white border-b border-slate-100 z-20 py-2 sm:py-3 px-4 sm:px-6 md:px-10">
             <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
-              {/* Left Section: Level & Progress */}
-              <div className="flex items-center gap-3 min-w-0">
+            {/* Left Section: Home Link + Level & Progress */}
+            <div className="flex items-center gap-3 min-w-0">
+              <a href="/" className="flex-shrink-0 w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-100 flex items-center justify-center hover:bg-slate-200 active:bg-slate-300 transition-colors" aria-label="Kembali ke halaman utama" title="Halaman Utama">
+                <Home className="w-4 h-4 sm:w-5 sm:h-5 text-slate-500" />
+              </a>
                 <div className="flex flex-col">
                   <div className="text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Lvl {Math.floor(xp / 100) + 1}</div>
                   <div className="text-[10px] md:text-xs font-black text-slate-800 truncate leading-none">

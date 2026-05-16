@@ -217,18 +217,27 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// ─── Static File Serving & SPA ─────────────────────────────────────────
+// ─── Static File Serving & Multi-Page Routing ──────────────────────────
 
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
       server: { middlewareMode: true },
-      appType: 'spa',
+      appType: 'mpa',  // Multi-page app — Vite handles HTML routing automatically
     });
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
+    // Landing page (root)
+    app.get('/', (req, res) => {
+      res.sendFile(path.join(distPath, 'index.html'));
+    });
+    // Chat page
+    app.get('/chat', (req, res) => {
+      res.sendFile(path.join(distPath, 'chat.html'));
+    });
+    // SPA fallback for other routes → landing page
     app.get('*', (req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });
