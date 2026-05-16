@@ -42,27 +42,27 @@ export default function GapFill({ data, onComplete }: GapFillProps) {
   const parts = safeData.sentence.split('___');
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="mt-4 md:mt-6 p-3 sm:p-4 md:p-5 rounded-2xl md:rounded-3xl bg-white border-2 border-brand-secondary/10 shadow-xl shadow-brand-secondary/5"
+      className="mt-4 md:mt-6 p-4 sm:p-5 md:p-6 rounded-2xl md:rounded-3xl bg-white border-2 border-brand-secondary/10 shadow-xl shadow-brand-secondary/5"
     >
       <div className="flex items-center gap-2 mb-2">
-        <div className="px-2 py-0.5 bg-brand-secondary/10 rounded-full text-[7px] font-black uppercase tracking-widest text-brand-secondary">
+        <div className="px-2.5 py-1 bg-brand-secondary/10 rounded-full text-[9px] font-black uppercase tracking-widest text-brand-secondary">
           Melengkapi Kalimat
         </div>
       </div>
 
-      <div className="text-[13px] md:text-sm font-medium text-slate-800 mb-3 md:mb-4 leading-relaxed">
+      <div className="text-sm md:text-base font-medium text-slate-800 mb-3 md:mb-4 leading-relaxed">
         {parts[0]}
-        <span className="inline-block mx-1.5 min-w-[60px] md:min-w-[80px] border-b-2 border-brand-primary px-1 text-brand-primary font-bold italic">
+        <span className="inline-block mx-1.5 min-w-[80px] md:min-w-[100px] border-b-2 border-brand-primary px-1.5 text-brand-primary font-bold italic">
           {isSubmitted ? safeData.answer : (userInput || '...')}
         </span>
         {parts[1]}
       </div>
 
       {!isSubmitted ? (
-        <div className="space-y-2">
+        <div className="space-y-2.5">
           <div className="relative">
             <input
               type="text"
@@ -70,7 +70,7 @@ export default function GapFill({ data, onComplete }: GapFillProps) {
               onChange={(e) => setUserInput(e.target.value)}
               placeholder="Isi jawabanmu..."
               aria-label="Isi bagian yang kosong"
-              className="w-full bg-slate-100 border-2 border-slate-200 rounded-lg md:rounded-xl px-3 py-1.5 md:py-2 text-[12px] font-bold text-slate-800 focus:border-brand-primary transition-all outline-none"
+              className="w-full bg-slate-100 border-2 border-slate-200 rounded-xl px-3.5 py-2.5 text-sm font-bold text-slate-800 focus:border-brand-primary transition-all outline-none"
             />
           </div>
 
@@ -78,9 +78,9 @@ export default function GapFill({ data, onComplete }: GapFillProps) {
             <button
               onClick={handleSubmit}
               disabled={!userInput.trim()}
-              className={`btn-tactile flex-1 py-2.5 rounded-lg font-black text-[9px] uppercase tracking-widest transition-all
-                ${userInput.trim() 
-                  ? 'bg-brand-primary border-green-600 text-white shadow-[0_2px_0_0_rgb(22,163,74)]' 
+              className={`btn-tactile flex-1 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all
+                ${userInput.trim()
+                  ? 'bg-brand-primary border-green-600 text-white shadow-[0_2px_0_0_rgb(22,163,74)]'
                   : 'bg-slate-200 border-slate-300 text-slate-400 shadow-[0_2px_0_0_rgb(148,163,184)]'
                 }`}
             >
@@ -89,59 +89,59 @@ export default function GapFill({ data, onComplete }: GapFillProps) {
             <button
               onClick={() => setShowHint(!showHint)}
               aria-label="Tampilkan petunjuk"
-              className="btn-tactile p-2 bg-white border-2 border-slate-200 text-slate-400 rounded-lg hover:text-brand-primary shadow-[0_2px_0_0_rgb(226,232,240)]"
+              className="btn-tactile p-2.5 bg-white border-2 border-slate-200 text-slate-400 rounded-xl hover:text-brand-primary shadow-[0_2px_0_0_rgb(226,232,240)]"
             >
-              <Lightbulb className="w-3.5 h-3.5" />
+              <Lightbulb className="w-4 h-4" />
             </button>
           </div>
 
           <AnimatePresence>
             {showHint && (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 className="p-4 bg-emerald-50 rounded-2xl border border-emerald-100"
               >
-                <p className="text-[10px] uppercase font-black text-emerald-600 mb-1">Bocoran (Hint)</p>
-                <p className="text-xs text-emerald-800 italic">{safeData.hint}</p>
+                <p className="text-xs uppercase font-black text-emerald-600 mb-1">Bocoran (Hint)</p>
+                <p className="text-sm text-emerald-800 italic">{safeData.hint}</p>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
       ) : (
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="space-y-6"
+          className="space-y-4"
         >
-          <div className={`p-6 rounded-2xl flex items-start gap-4 
+          <div className={`p-5 rounded-2xl flex items-start gap-3
             ${isCorrect ? 'bg-emerald-50 border border-emerald-100' : 'bg-rose-50 border border-rose-100'}`}
           >
             {isCorrect ? (
-              <CheckCircle2 className="w-6 h-6 text-emerald-500 flex-shrink-0" />
+              <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0" />
             ) : (
-              <XCircle className="w-6 h-6 text-rose-500 flex-shrink-0" />
+              <XCircle className="w-5 h-5 text-rose-500 flex-shrink-0" />
             )}
             <div>
               <p className={`font-black text-sm mb-1 ${isCorrect ? 'text-emerald-900' : 'text-rose-900'}`}>
                 {isCorrect ? 'Mantap! Jawabanmu Tepat.' : 'Hampir Benar!'}
               </p>
-              <p className={`text-xs leading-relaxed ${isCorrect ? 'text-emerald-700' : 'text-rose-700'}`}>
-                {isCorrect 
-                  ? 'Mari lanjut ke pembahasan berikutnya.' 
+              <p className={`text-sm leading-relaxed ${isCorrect ? 'text-emerald-700' : 'text-rose-700'}`}>
+                {isCorrect
+                  ? 'Mari lanjut ke pembahasan berikutnya.'
                   : `Jawaban yang benar adalah: "${safeData.answer}". Jangan menyerah, ayo coba lagi di tantangan berikutnya!`}
               </p>
             </div>
           </div>
 
-          <button 
+          <button
             onClick={() => onComplete({
               feedback: isCorrect ? 'Sempurna!' : 'Coba lagi lain kali',
               success: isCorrect
             })}
-            className="btn-tactile w-full py-3 bg-slate-900 border-slate-700 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center justify-center gap-2 shadow-[0_3px_0_0_rgb(31,41,55)]"
+            className="btn-tactile w-full py-3 bg-slate-900 border-slate-700 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center justify-center gap-2 shadow-[0_3px_0_0_rgb(31,41,55)]"
           >
-            Lanjut Diskusi <ArrowRight className="w-3 h-3" />
+            Lanjut Diskusi <ArrowRight className="w-4 h-4" />
           </button>
         </motion.div>
       )}

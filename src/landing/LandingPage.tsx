@@ -126,7 +126,7 @@ export default function LandingPage() {
       <main id="main-content">
         {/* ─── Hero Section ────────────────────────────────────────── */}
         <section
-          className="relative pt-8 sm:pt-12 lg:pt-16 pb-10 sm:pb-14 lg:pb-16 overflow-hidden"
+          className="relative pt-6 sm:pt-8 lg:pt-10 pb-8 sm:pb-10 lg:pb-12 overflow-hidden"
           aria-label="Hero"
         >
           {/* Subtle background gradient */}
@@ -136,7 +136,7 @@ export default function LandingPage() {
           <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-brand-secondary/3 rounded-full blur-3xl pointer-events-none" aria-hidden="true" />
 
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-            <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8 sm:gap-10 lg:gap-16">
+            <div className="flex flex-col lg:flex-row items-center lg:items-start gap-6 sm:gap-8 lg:gap-12">
               
               {/* ─── Left: Text Content ──────────────────────────── */}
               <motion.div
@@ -154,7 +154,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Heading */}
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-slate-800 mb-3 sm:mb-4 leading-[1.05]">
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-800 mb-2 sm:mb-3 leading-[1.08]">
                   Belajar dengan{' '}
                   <span className="text-brand-primary">Nalar</span>
                   <br />
@@ -168,12 +168,12 @@ export default function LandingPage() {
                 </h1>
 
                 {/* Subtitle */}
-                <p className="text-base sm:text-lg text-slate-500 font-medium mb-6 sm:mb-8 max-w-md lg:max-w-none leading-relaxed">
+                <p className="text-sm sm:text-base text-slate-500 font-medium mb-4 sm:mb-6 max-w-md lg:max-w-none leading-relaxed">
                   Tutor AI yang mendorong kamu <strong className="text-slate-700">berpikir kritis</strong> melalui metode sokratik — AI membimbing kamu menemukan jawaban sendiri, bukan memberikannya begitu saja.
                 </p>
 
                 {/* CTA Buttons */}
-                <div className="flex flex-col sm:flex-row items-center lg:items-start gap-2.5 sm:gap-3 mb-6 sm:mb-8">
+                <div className="flex flex-col sm:flex-row items-center lg:items-start gap-2 sm:gap-2.5 mb-4 sm:mb-5">
                   <a
                     href="/chat.html"
                     className="btn-tactile bg-brand-primary text-white font-bold px-6 sm:px-7 py-2.5 sm:py-3 rounded-2xl border-b-[4px] border-green-700 hover:bg-green-600 active:bg-green-700 active:top-[2px] transition-all text-base sm:text-lg flex items-center gap-2 shadow-lg w-full sm:w-auto justify-center"
@@ -217,11 +217,11 @@ export default function LandingPage() {
                 className="flex-1 flex items-center justify-center"
                 aria-hidden="true"
               >
-                <div className="relative w-56 h-56 sm:w-64 sm:h-64 lg:w-72 lg:h-72">
+                <div className="relative w-48 h-48 sm:w-56 sm:h-56 lg:w-64 lg:h-64">
                   {/* Main card */}
                   <div className="absolute inset-0 bg-white rounded-[40px] shadow-xl border border-slate-100 flex items-center justify-center">
-                    <div className="w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32 bg-brand-primary rounded-[28px] sm:rounded-[32px] flex items-center justify-center shadow-[0_6px_0_0_rgb(22,163,74)]">
-                      <Sparkles className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 text-white" />
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 bg-brand-primary rounded-[24px] sm:rounded-[28px] flex items-center justify-center shadow-[0_5px_0_0_rgb(22,163,74)]">
+                      <Sparkles className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 text-white" />
                     </div>
                   </div>
                   {/* Floating card 1 — Quiz */}

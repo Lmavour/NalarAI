@@ -2,7 +2,6 @@ import React, { memo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
-import { Sparkles } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Message } from '../types';
 
@@ -24,26 +23,20 @@ const MessageItem = memo(function MessageItem({ message, onInteractionComplete }
     .trim();
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       className={`flex w-full mb-6 ${isAssistant ? 'justify-start' : 'justify-end'}`}
     >
-      <div className={`flex items-end max-w-[85%] md:max-w-[75%] ${isAssistant ? 'flex-row' : 'flex-row-reverse'}`}>
-        {isAssistant && (
-          <div className="flex-shrink-0 w-10 h-10 rounded-2xl bg-brand-primary flex items-center justify-center mb-1 mr-2 shadow-[0_3px_0_0_rgb(22,163,74)] border-2 border-white">
-            <Sparkles className="w-5 h-5 text-white" />
-          </div>
-        )}
-        
+      <div className={`flex items-end max-w-[92%] md:max-w-[85%] ${isAssistant ? 'flex-row' : 'flex-row-reverse'}`}>
         <div className={`flex flex-col ${isAssistant ? 'items-start' : 'items-end'}`}>
-          <div className={`px-3 sm:px-3.5 py-2 sm:py-2.5 border-2 
-            ${isAssistant 
-              ? 'ai-bubble text-slate-700' 
+          <div className={`px-4 sm:px-5 py-2.5 sm:py-3 border-2
+            ${isAssistant
+              ? 'ai-bubble text-slate-700'
               : 'user-bubble text-white font-bold'
             }`}
           >
-            <div className="markdown-body overflow-wrap-anywhere break-words text-[13px] sm:text-sm md:text-[15px]">
+            <div className="markdown-body overflow-wrap-anywhere break-words text-[14px] sm:text-[15px] md:text-base">
               <ReactMarkdown
                 remarkPlugins={[remarkMath]}
                 rehypePlugins={[rehypeKatex]}
@@ -53,9 +46,9 @@ const MessageItem = memo(function MessageItem({ message, onInteractionComplete }
             </div>
 
             {isAssistant && onInteractionComplete && (
-              <InteractionDispatcher 
-                content={message.content} 
-                onComplete={onInteractionComplete} 
+              <InteractionDispatcher
+                content={message.content}
+                onComplete={onInteractionComplete}
               />
             )}
           </div>
