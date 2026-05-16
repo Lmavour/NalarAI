@@ -14,7 +14,11 @@ const PORT = parseInt(process.env.PORT || '3000', 10);
 // ─── Security Middleware ───────────────────────────────────────────────
 
 // 1. CORS — restrict API access to whitelisted origins only
-const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',').map(o => o.trim()) || ['http://localhost:3000'];
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',').map(o => o.trim()) || [
+  'http://localhost:3000',
+  'https://nalar-ai-tau.vercel.app',
+  'https://nalar-ai.web.id',
+];
 
 const corsOptions = {
   origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
@@ -43,10 +47,10 @@ app.use(helmet({
       scriptSrc: process.env.NODE_ENV === 'production'
         ? ["'self'"]
         : ["'self'", "'unsafe-inline'"],  // Vite HMR needs unsafe-inline in dev
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", "data:"],
-      connectSrc: ["'self'", "https://api.siputzx.my.id"],
-      fontSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      imgSrc: ["'self'", "data:", "https://nalar-ai-tau.vercel.app", "https://nalar-ai.web.id"],
+      connectSrc: ["'self'", "https://api.siputzx.my.id", "https://nalar-ai-tau.vercel.app", "https://nalar-ai.web.id"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
       objectSrc: ["'none'"],
       frameAncestors: ["'none'"],
     },

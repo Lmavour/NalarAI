@@ -1,13 +1,7 @@
 {
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
   "rewrites": [
-    { "source": "/chat", "destination": "/chat.html" },
-    { "source": "/chat.html", "destination": "/chat.html" },
-    { "source": "/api/chat", "destination": "/api/chat" }
-  ],
-  "routes": [
-    { "src": "/chat.html", "dest": "/chat.html" },
-    { "src": "/chat", "dest": "/chat.html" },
-    { "src": "/assets/(.*)", "dest": "/assets/$1" },
-    { "src": "/(.*)", "dest": "/index.html" }
+    { "source": "/chat", "destination": "/chat.html" }
   ]
 }
