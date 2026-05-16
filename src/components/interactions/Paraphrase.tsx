@@ -10,6 +10,10 @@ interface ParaphraseProps {
 }
 
 export default function Paraphrase({ data, onComplete }: ParaphraseProps) {
+  const safeData = {
+    context: data.context || 'Jelaskan konsep yang baru saja kita bahas.'
+  };
+
   const [userInput, setUserInput] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isReady, setIsReady] = useState(false);
@@ -52,7 +56,7 @@ export default function Paraphrase({ data, onComplete }: ParaphraseProps) {
             >
               <div className="p-4 bg-slate-50 rounded-2xl border-2 border-slate-200 shadow-[0_3px_0_0_rgb(226,232,240)] italic text-sm text-slate-600 leading-relaxed relative">
                 <Quote className="absolute -top-2 -left-2 w-6 h-6 text-slate-200" />
-                {data.context}
+                {safeData.context}
               </div>
               <button
                 onClick={() => setIsReady(true)}
@@ -63,20 +67,17 @@ export default function Paraphrase({ data, onComplete }: ParaphraseProps) {
             </motion.div>
           ) : (
             !isSubmitted && (
-              <motion.div
-                key="hidden"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="flex items-center gap-2 p-3 bg-slate-100 rounded-xl text-[10px] font-bold text-slate-500 uppercase tracking-widest"
-              >
-                <Eye className="w-3 h-3" /> Teks Sumber Disembunyikan
-                <button 
-                  onClick={() => setIsReady(false)}
-                  className="ml-auto text-brand-primary font-black hover:underline"
-                >
-                  Lihat Lagi
-                </button>
-              </motion.div>
+                <div className="flex items-center gap-2 p-3 bg-slate-100 rounded-xl">
+                  <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                    <Eye className="w-3 h-3" /> Teks Sumber Disembunyikan
+                  </div>
+                  <button 
+                    onClick={() => setIsReady(false)}
+                    className="ml-auto text-brand-primary font-black hover:underline px-3 py-1 rounded-lg min-h-[44px] flex items-center"
+                  >
+                    Lihat Lagi
+                  </button>
+                </div>
             )
           )}
         </AnimatePresence>
@@ -95,7 +96,8 @@ export default function Paraphrase({ data, onComplete }: ParaphraseProps) {
             value={userInput}
             onChange={(e) => setUserInput(e.target.value)}
             placeholder="Ketik penjelasanmu di sini..."
-            className="w-full h-32 bg-slate-50 border-2 border-slate-200 rounded-2xl px-6 py-4 text-sm font-bold text-slate-800 focus:border-brand-primary transition-all outline-none resize-none"
+            aria-label="Ketik penjelasanmu"
+            className="w-full h-32 bg-slate-50 border-2 border-slate-200 rounded-2xl px-6 py-4 text-base font-bold text-slate-800 focus:border-brand-primary transition-all outline-none resize-none"
           />
 
           <button

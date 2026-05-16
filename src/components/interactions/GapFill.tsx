@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { CheckCircle2, XCircle, Lightbulb, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { playSound } from '../../utils/audio';
 
 interface GapFillProps {
   data: {
@@ -12,15 +13,19 @@ interface GapFillProps {
 }
 
 export default function GapFill({ data, onComplete }: GapFillProps) {
+  const safeData = {
+    sentence: data.sentence || 'Lengkapi kalimat ___ ini.',
+    answer: data.answer || 'jawaban',
+    hint: data.hint || 'Tidak ada bocoran'
+  };
+
   const [userInput, setUserInput] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [showHint, setShowHint] = useState(false);
 
   const playFeedback = (success: boolean) => {
-    const audio = new Audio(success ? 'https://www.soundjay.com/buttons/sounds/button-3.mp3' : 'https://www.soundjay.com/buttons/sounds/button-10.mp3');
-    audio.volume = 0.2;
-    audio.play().catch(() => {});
+    playSound(success ? 'success' : 'error');
     if (window.navigator && window.navigator.vibrate) {
       window.navigator.vibrate(success ? 50 : [50, 50, 50]);
     }
@@ -28,13 +33,13 @@ export default function GapFill({ data, onComplete }: GapFillProps) {
 
   const handleSubmit = () => {
     if (!userInput.trim()) return;
-    const correct = userInput.trim().toLowerCase() === data.answer.toLowerCase();
+    const correct = userInput.trim().toLowerCase() === safeData.answer.toLowerCase();
     setIsCorrect(correct);
     setIsSubmitted(true);
     playFeedback(correct);
   };
 
-  const parts = data.sentence.split('___');
+  const parts = safeData.sentence.split('___');
 
   return (
     <motion.div 
@@ -51,7 +56,7 @@ export default function GapFill({ data, onComplete }: GapFillProps) {
       <div className="text-lg font-medium text-slate-800 mb-8 leading-relaxed">
         {parts[0]}
         <span className="inline-block mx-2 min-w-[120px] border-b-2 border-brand-primary px-2 text-brand-primary font-bold italic">
-          {isSubmitted ? data.answer : (userInput || '...')}
+          {isSubmitted ? safeData.answer : (userInput || '...')}
         </span>
         {parts[1]}
       </div>
@@ -64,7 +69,8 @@ export default function GapFill({ data, onComplete }: GapFillProps) {
               value={userInput}
               onChange={(e) => setUserInput(e.target.value)}
               placeholder="Isi jawabanmu..."
-              className="w-full bg-slate-100 border-2 border-slate-200 rounded-2xl px-6 py-4 text-sm font-bold text-slate-800 focus:border-brand-primary transition-all outline-none"
+              aria-label="Isi bagian yang kosong"
+              className="w-full bg-slate-100 border-2 border-slate-200 rounded-2xl px-6 py-4 text-base font-bold text-slate-800 focus:border-brand-primary transition-all outline-none"
             />
           </div>
 
@@ -82,6 +88,7 @@ export default function GapFill({ data, onComplete }: GapFillProps) {
             </button>
             <button
               onClick={() => setShowHint(!showHint)}
+              aria-label="Tampilkan petunjuk"
               className="btn-tactile p-4 bg-white border-2 border-slate-200 text-slate-400 rounded-2xl hover:text-brand-primary shadow-[0_4px_0_0_rgb(226,232,240)]"
             >
               <Lightbulb className="w-5 h-5" />
@@ -96,7 +103,7 @@ export default function GapFill({ data, onComplete }: GapFillProps) {
                 className="p-4 bg-emerald-50 rounded-2xl border border-emerald-100"
               >
                 <p className="text-[10px] uppercase font-black text-emerald-600 mb-1">Bocoran (Hint)</p>
-                <p className="text-xs text-emerald-800 italic">{data.hint}</p>
+                <p className="text-xs text-emerald-800 italic">{safeData.hint}</p>
               </motion.div>
             )}
           </AnimatePresence>
@@ -122,7 +129,7 @@ export default function GapFill({ data, onComplete }: GapFillProps) {
               <p className={`text-xs leading-relaxed ${isCorrect ? 'text-emerald-700' : 'text-rose-700'}`}>
                 {isCorrect 
                   ? 'Mari lanjut ke pembahasan berikutnya.' 
-                  : `Jawaban yang benar adalah: "${data.answer}". Jangan menyerah, ayo coba lagi di tantangan berikutnya!`}
+                  : `Jawaban yang benar adalah: "${safeData.answer}". Jangan menyerah, ayo coba lagi di tantangan berikutnya!`}
               </p>
             </div>
           </div>

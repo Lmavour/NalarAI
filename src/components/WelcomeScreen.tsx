@@ -14,13 +14,13 @@ interface WelcomeScreenProps {
 
 export default function WelcomeScreen({ onSelectSuggestion }: WelcomeScreenProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-10 text-center">
+    <div className="flex flex-col items-center justify-center py-6 sm:py-10 text-center">
       <motion.div 
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className="w-24 h-24 bg-brand-primary rounded-3xl flex items-center justify-center mb-10 shadow-[0_8px_0_0_rgb(22,163,74)] border-4 border-white"
+        className="w-20 h-20 sm:w-24 sm:h-24 bg-brand-primary rounded-3xl flex items-center justify-center mb-6 sm:mb-10 shadow-[0_6px_0_0_rgb(22,163,74)] sm:shadow-[0_8px_0_0_rgb(22,163,74)] border-4 border-white"
       >
-        <Sparkles className="w-12 h-12 text-white" />
+        <Sparkles className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
       </motion.div>
       
       <motion.div
@@ -28,17 +28,17 @@ export default function WelcomeScreen({ onSelectSuggestion }: WelcomeScreenProps
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.1 }}
       >
-        <h1 className="text-4xl font-black tracking-tight text-slate-800 mb-2">
+        <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-slate-800 mb-2">
           Nalar<span className="text-brand-primary">.ai</span>
         </h1>
-        <p className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-8">Eksperimen Belajar Aktif</p>
+        <p className="text-[10px] sm:text-sm font-bold text-slate-400 uppercase tracking-widest mb-6 sm:mb-8">Eksperimen Belajar Aktif</p>
       </motion.div>
       
       <motion.p 
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.2 }}
-        className="text-lg text-slate-500 font-bold mb-10 max-w-[280px] leading-relaxed"
+        className="text-base sm:text-lg text-slate-500 font-bold mb-8 sm:mb-10 max-w-[260px] sm:max-w-[280px] leading-relaxed"
       >
         Latih logika dan pemahamanmu melalui dialog yang menantang!
       </motion.p>

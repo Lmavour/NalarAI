@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { CheckCircle2, XCircle, Info, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { playSound } from '../../utils/audio';
 
 interface QuizProps {
   data: {
@@ -13,13 +14,19 @@ interface QuizProps {
 }
 
 export default function Quiz({ data, onComplete }: QuizProps) {
+  // Ensure we have fallbacks for missing fields
+  const safeData = {
+    question: data.question || 'Pertanyaan Quiz',
+    options: data.options || ['Pilihan 1', 'Pilihan 2', 'Pilihan 3'],
+    correct: typeof data.correct === 'number' ? data.correct : 0,
+    explanation: data.explanation || 'Tetap semangat belajar!'
+  };
+
   const [selected, setSelected] = useState<number | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   const playFeedback = (success: boolean) => {
-    const audio = new Audio(success ? 'https://www.soundjay.com/buttons/sounds/button-3.mp3' : 'https://www.soundjay.com/buttons/sounds/button-10.mp3');
-    audio.volume = 0.2;
-    audio.play().catch(() => {});
+    playSound(success ? 'success' : 'error');
     if (window.navigator && window.navigator.vibrate) {
       window.navigator.vibrate(success ? 50 : [50, 50, 50]);
     }
@@ -28,7 +35,7 @@ export default function Quiz({ data, onComplete }: QuizProps) {
   const handleSubmit = () => {
     if (selected === null) return;
     setIsSubmitted(true);
-    const isCorrect = selected === data.correct;
+    const isCorrect = selected === safeData.correct;
     playFeedback(isCorrect);
   };
 
@@ -45,12 +52,12 @@ export default function Quiz({ data, onComplete }: QuizProps) {
       </div>
 
       <h3 className="text-lg font-bold text-slate-800 mb-6 leading-tight">
-        {data.question}
+        {safeData.question}
       </h3>
 
       <div className="space-y-3">
-        {data.options.map((option, idx) => {
-          const isCorrect = idx === data.correct;
+        {safeData.options.map((option, idx) => {
+          const isCorrect = idx === safeData.correct;
           const isSelected = idx === selected;
           const showSuccess = isSubmitted && isCorrect;
           const showError = isSubmitted && isSelected && !isCorrect;
@@ -60,13 +67,14 @@ export default function Quiz({ data, onComplete }: QuizProps) {
               key={idx}
               disabled={isSubmitted}
               onClick={() => setSelected(idx)}
+              aria-label={`Pilihan: ${option}`}
               className={`w-full flex items-center justify-between p-4 rounded-2xl border-2 transition-all text-left btn-tactile
                 ${isSelected && !isSubmitted ? 'border-brand-primary bg-brand-primary/5 shadow-[0_3px_0_0_rgb(22,163,74)]' : 'border-slate-200 bg-white hover:bg-slate-50 shadow-[0_3px_0_0_rgb(226,232,240)]'}
                 ${showSuccess ? 'border-emerald-500 bg-emerald-50 text-emerald-900 font-bold shadow-[0_3px_0_0_rgb(16,185,129)]' : ''}
                 ${showError ? 'border-rose-500 bg-rose-50 text-rose-900 shadow-[0_3px_0_0_rgb(239,68,68)]' : ''}
               `}
             >
-              <span className="text-sm font-bold">{option}</span>
+              <span className="text-base font-bold">{option}</span>
               {showSuccess && <CheckCircle2 className="w-5 h-5 text-emerald-500" />}
               {showError && <XCircle className="w-5 h-5 text-rose-500" />}
             </button>
@@ -86,14 +94,14 @@ export default function Quiz({ data, onComplete }: QuizProps) {
                 <Info className="w-4 h-4 text-brand-primary" />
               </div>
               <p className="text-sm text-slate-600 leading-relaxed italic">
-                {data.explanation}
+                {safeData.explanation}
               </p>
             </div>
             
             <button 
               onClick={() => onComplete({ 
-                feedback: selected === data.correct ? 'Hore, benar!' : 'Salah dikit', 
-                success: selected === data.correct 
+                feedback: selected === safeData.correct ? 'Hore, benar!' : 'Salah dikit', 
+                success: selected === safeData.correct 
               })}
               className="btn-tactile w-full py-4 bg-slate-900 border-slate-700 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center justify-center gap-2 shadow-[0_4px_0_0_rgb(31,41,55)]"
             >

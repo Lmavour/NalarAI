@@ -9,10 +9,10 @@ interface InteractionDispatcherProps {
 }
 
 export default function InteractionDispatcher({ content, onComplete }: InteractionDispatcherProps) {
-  // Regex to match [[TYPE:JSON_DATA]]
-  const quizRegex = /\[\[QUIZ:(.*?)\]\]/s;
-  const gapFillRegex = /\[\[GAP_FILL:(.*?)\]\]/s;
-  const paraphraseRegex = /\[\[PARAPHRASE:(.*?)\]\]/s;
+  // Regex to match [[TYPE:JSON_DATA]] with resilience to missing second bracket
+  const quizRegex = /\[\[QUIZ:(.*?)(\]\]|\]$)/s;
+  const gapFillRegex = /\[\[GAP_FILL:(.*?)(\]\]|\]$)/s;
+  const paraphraseRegex = /\[\[PARAPHRASE:(.*?)(\]\]|\]$)/s;
 
   const quizMatch = content.match(quizRegex);
   if (quizMatch) {

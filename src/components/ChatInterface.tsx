@@ -1,10 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Send, Trophy, Heart, Flame } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Message } from '../types';
 import MessageItem from './MessageItem';
 import WelcomeScreen from './WelcomeScreen';
 import CertificateModal from './CertificateModal';
+import { playSound, preloadSounds } from '../utils/audio';
 
 export default function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -15,17 +16,31 @@ export default function ChatInterface() {
   const [streak, setStreak] = useState(0);
   const [showCertificate, setShowCertificate] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const playSound = (type: 'success' | 'error' | 'pop') => {
-    const sounds = {
-      success: 'https://www.soundjay.com/buttons/sounds/button-3.mp3',
-      error: 'https://www.soundjay.com/buttons/sounds/button-10.mp3',
-      pop: 'https://www.soundjay.com/buttons/sounds/button-21.mp3'
-    };
-    const audio = new Audio(sounds[type]);
-    audio.volume = 0.3;
-    audio.play().catch(() => {});
-  };
+  // Preload sounds on mount
+  useEffect(() => {
+    preloadSounds();
+    
+    // Keyboard viewport resize handling
+    if (window.visualViewport) {
+      const onResize = () => {
+        if (scrollRef.current) {
+          scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+        }
+      };
+      window.visualViewport.addEventListener('resize', onResize);
+      return () => window.visualViewport.removeEventListener('resize', onResize);
+    }
+  }, []);
+
+  // Auto-resize textarea
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 128)}px`;
+    }
+  }, [input]);
 
   const triggerHaptic = () => {
     if (window.navigator && window.navigator.vibrate) {
@@ -97,7 +112,7 @@ export default function ChatInterface() {
     }
   };
 
-  const handleInteractionComplete = (result: { feedback: string; success: boolean }) => {
+  const handleInteractionComplete = useCallback((result: { feedback: string; success: boolean }) => {
     if (result.success) {
       setXp(prev => {
         const nextXp = prev + 15;
@@ -114,16 +129,19 @@ export default function ChatInterface() {
       playSound('error');
     }
     handleSendMessage(result.feedback);
-  };
+  }, [xp]);
 
 
 
   return (
-    <div className="flex flex-col h-screen bg-white font-sans max-w-md mx-auto relative shadow-2xl overflow-hidden">
+    <div className="flex flex-col h-dvh bg-white font-sans w-full max-w-md mx-auto relative md:shadow-2xl overflow-hidden">
       {/* Header / Progress Bar */}
-      <header className="flex-shrink-0 pt-6 px-6 pb-6 bg-white border-b border-slate-100 z-20">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="flex items-center gap-1 text-brand-error font-black">
+      <header className="flex-shrink-0 pt-4 sm:pt-6 px-4 sm:px-6 pb-4 sm:pb-6 bg-white border-b border-slate-100 z-20">
+        <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-4">
+          <div 
+            className="flex items-center gap-1 text-brand-error font-black min-h-[44px] px-1"
+            aria-label={`Nyawa: ${hearts}`}
+          >
             <Heart className={`w-5 h-5 fill-current ${hearts <= 1 ? 'animate-pulse' : ''}`} />
             <span className="text-sm">{hearts}</span>
           </div>
@@ -131,17 +149,23 @@ export default function ChatInterface() {
           <div className="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden border border-slate-200">
             <motion.div 
               initial={{ width: 0 }}
-              animate={{ width: `${Math.min((xp / 100) * 100, 100)}%` }}
-              className="h-full bg-brand-primary shadow-[inset_0_-3px_0_0_rgba(0,0,0,0.1)]"
+              animate={{ width: `${Math.min((xp % 100 / 100) * 100, 100)}%` }}
+              className="h-full bg-brand-primary shadow-[inset_0_-3px_0_0_rgba(0,0,0,0.1)] will-change-[width]"
             />
           </div>
 
-          <div className="flex items-center gap-1 text-brand-accent font-black">
+          <div 
+            className="flex items-center gap-1 text-brand-accent font-black min-h-[44px] px-1"
+            aria-label={`Streak: ${streak}`}
+          >
             <Flame className="w-5 h-5 fill-current" />
             <span className="text-sm">{streak}</span>
           </div>
           
-          <div className="flex items-center gap-1 text-slate-400 font-black">
+          <div 
+            className="flex items-center gap-1 text-slate-400 font-black min-h-[44px] px-1"
+            aria-label={`Total XP: ${xp}`}
+          >
             <Trophy className="w-5 h-5" />
             <span className="text-sm">{xp}</span>
           </div>
@@ -155,7 +179,7 @@ export default function ChatInterface() {
             </span>
           </div>
           <div className="text-[10px] font-black py-1 px-2 bg-slate-100 rounded-lg text-slate-500 uppercase tracking-tighter">
-            Target Harian: {xp % 100}/100 XP
+            Target: {xp % 100}/100 XP
           </div>
         </div>
       </header>
@@ -204,10 +228,14 @@ export default function ChatInterface() {
       </main>
 
       {/* Input Area */}
-      <footer className="flex-shrink-0 bg-white border-t-2 border-slate-100 p-4 pb-8 z-10 transition-all">
+      <footer 
+        className="flex-shrink-0 bg-white border-t-2 border-slate-100 p-4 z-10 transition-all"
+        style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom, 1rem))' }}
+      >
         <div className="flex flex-col gap-3">
           <div className="relative">
             <textarea
+              ref={textareaRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => {
@@ -217,13 +245,15 @@ export default function ChatInterface() {
                 }
               }}
               placeholder="Ketik jawabanmu..."
-              className="w-full bg-slate-100 border-2 border-slate-200 rounded-2xl px-5 py-4 pr-12 focus:ring-0 focus:bg-white focus:border-brand-primary transition-all resize-none min-h-[56px] max-h-32 text-sm font-bold text-slate-800 placeholder:text-slate-400"
+              className="w-full bg-slate-100 border-2 border-slate-200 rounded-2xl px-5 py-4 pr-12 focus:ring-0 focus:bg-white focus:border-brand-primary transition-all resize-none min-h-[56px] max-h-32 text-base font-bold text-slate-800 placeholder:text-slate-400"
               rows={1}
+              aria-label="Ketik pesan pesan"
             />
             <div className="absolute right-3 bottom-3">
               <button
                 onClick={() => handleSendMessage(input)}
                 disabled={!input.trim() || isLoading}
+                aria-label="Kirim pesan"
                 className={`btn-tactile w-10 h-10 rounded-xl flex items-center justify-center transition-all
                   ${input.trim() && !isLoading 
                     ? 'bg-brand-primary border-green-600 text-white shadow-[0_3px_0_0_rgb(22,163,74)]' 

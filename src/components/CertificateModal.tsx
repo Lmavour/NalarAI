@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Trophy, Star, Share2, RefreshCw } from 'lucide-react';
+import { playSound } from '../utils/audio';
 
 interface CertificateModalProps {
   isOpen: boolean;
@@ -19,7 +20,7 @@ export default function CertificateModal({ isOpen, xp, onClose }: CertificateMod
             exit={{ scale: 0.9, opacity: 0 }}
             className="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl border-4 border-brand-primary/20"
           >
-            <div className="bg-brand-primary p-8 text-center text-white relative overflow-hidden">
+            <div className="bg-brand-primary p-6 sm:p-8 text-center text-white relative overflow-hidden">
               <motion.div 
                 animate={{ rotate: 360 }}
                 transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
@@ -41,7 +42,7 @@ export default function CertificateModal({ isOpen, xp, onClose }: CertificateMod
               </div>
             </div>
 
-            <div className="p-8 text-center">
+            <div className="p-6 sm:p-8 text-center">
               <p className="text-slate-500 text-sm font-medium mb-2">Diberikan kepada</p>
               <h3 className="text-xl font-black text-slate-800 mb-6 tracking-tight">Siswa Terampil</h3>
               
@@ -60,8 +61,7 @@ export default function CertificateModal({ isOpen, xp, onClose }: CertificateMod
               <div className="flex flex-col gap-3">
                 <button 
                   onClick={() => {
-                    const audio = new Audio('https://www.soundjay.com/buttons/sounds/button-21.mp3');
-                    audio.play().catch(() => {});
+                    playSound('pop');
                     onClose();
                   }}
                   className="btn-tactile w-full py-4 bg-brand-primary border-green-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-[0_4px_0_0_rgb(22,163,74)]"
