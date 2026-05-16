@@ -11,6 +11,54 @@
   --color-brand-error: #FF4B4B;
 }
 
+/* ─── Fluid Typography ──────────────────────────────────────────── */
+/* Clamp-based font sizing that scales smoothly between mobile & desktop */
+/* Design range: 320px–1920px, comfortable at 1024px–1440px */
+
+@layer utilities {
+  /* Hero title: Nalar.ai — large but not oversized on desktop */
+  .fluid-text-hero {
+    font-size: clamp(2rem, 2.5rem + 0.5vw, 3.5rem);
+    /* 32px → ~40px at 1024 → 56px max at 1920 */
+  }
+
+  /* Tagline / subtitle label */
+  .fluid-text-tag {
+    font-size: clamp(0.625rem, 0.7rem + 0.1vw, 0.875rem);
+    /* 10px → ~11px → 14px */
+  }
+
+  /* Subtitle paragraph */
+  .fluid-text-subtitle {
+    font-size: clamp(1rem, 1.1rem + 0.2vw, 1.375rem);
+    /* 16px → ~18px → 22px */
+  }
+
+  /* Section headings (h2) */
+  .fluid-text-section {
+    font-size: clamp(1.5rem, 1.7rem + 0.3vw, 2.25rem);
+    /* 24px → ~28px → 36px */
+  }
+
+  /* CTA heading */
+  .fluid-text-cta {
+    font-size: clamp(1.75rem, 2rem + 0.3vw, 2.75rem);
+    /* 28px → ~34px → 44px */
+  }
+
+  /* Card titles (h3) */
+  .fluid-text-card-title {
+    font-size: clamp(1rem, 1.1rem + 0.1vw, 1.25rem);
+    /* 16px → ~18px → 20px */
+  }
+
+  /* Body text */
+  .fluid-text-body {
+    font-size: clamp(0.8125rem, 0.85rem + 0.05vw, 1rem);
+    /* 13px → ~14px → 16px */
+  }
+}
+
 @layer base {
   /* Fallback for browsers without dvh support */
   @supports not (height: 100dvh) {
@@ -57,6 +105,18 @@
   .scroll-smooth {
     -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
+  }
+
+  /* Focus visible styles for accessibility */
+  :focus-visible {
+    outline: 2px solid var(--color-brand-primary);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Remove default focus outline for mouse users */
+  :focus:not(:focus-visible) {
+    outline: none;
   }
 }
 

@@ -7,12 +7,14 @@
     <!-- Primary SEO Meta Tags -->
     <title>Nalar.ai — Tutor AI untuk Belajar Aktif & Berpikir Kritis</title>
     <meta name="description" content="Nalar.ai adalah tutor AI yang mendorong siswa berpikir kritis melalui metode sokratik, tantangan interaktif, dan eksplorasi informasi. Belajar aktif, bukan pasif!" />
-    <meta name="keywords" content="nalar ai, nalarai, nalar.ai, tutor ai, belajar aktif, berpikir kritis, AI pembelajaran, sokratik, Indonesia, edukasi AI, latihan soal AI" />
-    <meta name="robots" content="index, follow" />
+    <meta name="keywords" content="nalar ai, nalarai, nalar.ai, tutor ai, belajar aktif, berpikir kritis, AI pembelajaran, sokratik, Indonesia, edukasi AI, latihan soal AI, quiz interaktif, gap fill, paraphrase" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="author" content="Nalar.ai" />
     <link rel="canonical" href="https://nalar-ai.web.id/" />
     <meta name="language" content="id" />
     <meta http-equiv="content-language" content="id" />
+    <meta name="geo.region" content="ID" />
+    <meta name="geo.placename" content="Indonesia" />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
@@ -20,6 +22,9 @@
     <meta property="og:title" content="Nalar.ai — Tutor AI untuk Belajar Aktif & Berpikir Kritis" />
     <meta property="og:description" content="Tutor AI yang mendorong siswa berpikir kritis melalui metode sokratik, tantangan interaktif, dan eksplorasi informasi. Mulai belajar sekarang — gratis!" />
     <meta property="og:image" content="https://nalar-ai.web.id/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Nalar.ai — Tutor AI untuk belajar aktif dan berpikir kritis" />
     <meta property="og:locale" content="id_ID" />
     <meta property="og:site_name" content="Nalar.ai" />
 
@@ -28,7 +33,8 @@
     <meta name="twitter:url" content="https://nalar-ai.web.id/" />
     <meta name="twitter:title" content="Nalar.ai — Tutor AI untuk Belajar Aktif & Berpikir Kritis" />
     <meta name="twitter:description" content="Tutor AI yang mendorong siswa berpikir kritis melalui metode sokratik, tantangan interaktif, dan eksplorasi informasi." />
-    <meta name="twitter:image" content="https://nalar.ai/og-image.png" />
+    <meta name="twitter:image" content="https://nalar-ai.web.id/og-image.png" />
+    <meta name="twitter:image:alt" content="Nalar.ai — Tutor AI untuk belajar aktif dan berpikir kritis" />
 
     <!-- PWA-like behavior on mobile -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -38,7 +44,20 @@
     <meta name="theme-color" content="#58CC02" />
     <meta name="format-detection" content="telephone=no" />
 
-    <!-- JSON-LD Structured Data -->
+    <!-- Favicon & Icons -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <!-- Preload critical assets for performance -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" as="style" />
+    <link rel="preload" href="/og-image.png" as="image" />
+
+    <!-- Font Preconnect & Loading -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" />
+
+    <!-- JSON-LD Structured Data: WebApplication -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -61,14 +80,39 @@
         "Tantangan interaktif: Quiz, Gap Fill, Paraphrase",
         "Progress tracking: XP, streak, nyawa",
         "Sertifikat pembelajaran"
-      ]
+      ],
+      "screenshot": "https://nalar-ai.web.id/og-image.png",
+      "logo": "https://nalar-ai.web.id/favicon.svg"
     }
     </script>
 
-    <!-- Font Preconnect & Loading -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" />
+    <!-- JSON-LD Structured Data: Organization -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Nalar.ai",
+      "url": "https://nalar-ai.web.id",
+      "logo": "https://nalar-ai.web.id/favicon.svg",
+      "sameAs": []
+    }
+    </script>
+
+    <!-- JSON-LD Structured Data: BreadcrumbList -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Beranda",
+          "item": "https://nalar-ai.web.id/"
+        }
+      ]
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>
