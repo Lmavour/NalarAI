@@ -25,25 +25,25 @@ const MessageItem = memo(function MessageItem({ message, onInteractionComplete }
 
   return (
     <motion.div 
-      initial={{ opacity: 0, x: isAssistant ? -10 : 10 }}
-      animate={{ opacity: 1, x: 0 }}
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
       className={`flex w-full mb-6 ${isAssistant ? 'justify-start' : 'justify-end'}`}
     >
-      <div className={`flex items-end max-w-[95%] md:max-w-[85%] ${isAssistant ? 'flex-row' : 'flex-row-reverse'}`}>
+      <div className={`flex items-end max-w-[85%] md:max-w-[75%] ${isAssistant ? 'flex-row' : 'flex-row-reverse'}`}>
         {isAssistant && (
           <div className="flex-shrink-0 w-10 h-10 rounded-2xl bg-brand-primary flex items-center justify-center mb-1 mr-2 shadow-[0_3px_0_0_rgb(22,163,74)] border-2 border-white">
             <Sparkles className="w-5 h-5 text-white" />
           </div>
         )}
         
-        <div className={`flex flex-col ${isAssistant ? 'items-start' : 'items-end'} w-full`}>
-          <div className={`px-4 sm:px-5 py-3 sm:py-4 border-2 w-full
+        <div className={`flex flex-col ${isAssistant ? 'items-start' : 'items-end'}`}>
+          <div className={`px-3 sm:px-3.5 py-2 sm:py-2.5 border-2 
             ${isAssistant 
               ? 'ai-bubble text-slate-700' 
               : 'user-bubble text-white font-bold'
             }`}
           >
-            <div className="markdown-body overflow-wrap-anywhere break-words">
+            <div className="markdown-body overflow-wrap-anywhere break-words text-[13px] sm:text-sm md:text-[15px]">
               <ReactMarkdown
                 remarkPlugins={[remarkMath]}
                 rehypePlugins={[rehypeKatex]}
