@@ -1,39 +1,74 @@
-const audioCache: Record<string, HTMLAudioElement> = {};
+/**
+ * Self-hosted audio using Web Audio API — no external CDN dependency.
+ * Generates synthetic tones in-browser for success, error, and pop sounds.
+ */
 
-const SOUNDS = {
-  success: 'https://www.soundjay.com/buttons/sounds/button-3.mp3',
-  error: 'https://www.soundjay.com/buttons/sounds/button-10.mp3',
-  pop: 'https://www.soundjay.com/buttons/sounds/button-21.mp3',
-};
+let audioCtx: AudioContext | null = null;
 
-export function preloadSounds() {
-  if (typeof window === 'undefined') return;
-  
-  Object.entries(SOUNDS).forEach(([key, url]) => {
-    if (!audioCache[key]) {
-      const audio = new Audio(url);
-      audio.volume = 0.3;
-      audio.preload = 'auto';
-      audioCache[key] = audio;
-    }
-  });
+function getCtx(): AudioContext {
+  if (!audioCtx) {
+    audioCtx = new AudioContext();
+  }
+  return audioCtx;
 }
 
-export function playSound(type: 'success' | 'error' | 'pop', volume = 0.3) {
-  if (typeof window === 'undefined') return;
+function playTone(
+  frequency: number,
+  duration: number,
+  type: OscillatorType = 'sine',
+  volume = 0.15,
+  rampDown = true,
+) {
+  try {
+    const ctx = getCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
 
-  const audio = audioCache[type];
-  if (audio) {
-    audio.volume = volume;
-    // Reset for rapid play
-    audio.currentTime = 0;
-    audio.play().catch(() => {
-      // Browser might block auto-play without interaction
-    });
-  } else {
-    // Fallback if not preloaded
-    const audioFallback = new Audio(SOUNDS[type]);
-    audioFallback.volume = volume;
-    audioFallback.play().catch(() => {});
+    osc.type = type;
+    osc.frequency.setValueAtTime(frequency, ctx.currentTime);
+    gain.gain.setValueAtTime(volume, ctx.currentTime);
+
+    if (rampDown) {
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+    }
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + duration);
+  } catch {
+    // AudioContext may not be available (SSR, restrictive environments)
+  }
+}
+
+export function preloadSounds() {
+  // Web Audio API doesn't need preloading — tone generation is instant.
+  // We do warm up the AudioContext on first user interaction via playSound.
+}
+
+export function playSound(type: 'success' | 'error' | 'pop') {
+  // Resume AudioContext if suspended (browser autoplay policy)
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume().catch(() => {});
+  }
+
+  switch (type) {
+    case 'success':
+      // Ascending cheerful two-note chime
+      playTone(523.25, 0.12, 'sine', 0.18);  // C5
+      setTimeout(() => playTone(659.25, 0.18, 'sine', 0.18), 80); // E5
+      break;
+
+    case 'error':
+      // Low buzz — two short pulses
+      playTone(180, 0.15, 'square', 0.1);
+      setTimeout(() => playTone(150, 0.18, 'square', 0.1), 100);
+      break;
+
+    case 'pop':
+      // Quick bright click
+      playTone(880, 0.05, 'sine', 0.12, false);
+      break;
   }
 }

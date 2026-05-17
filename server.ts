@@ -51,6 +51,7 @@ app.use(helmet({
       imgSrc: ["'self'", "data:", "https://nalar-ai-tau.vercel.app", "https://nalar-ai.web.id"],
       connectSrc: ["'self'", "https://api.siputzx.my.id", "https://nalar-ai-tau.vercel.app", "https://nalar-ai.web.id"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      mediaSrc: ["'self'"],
       objectSrc: ["'none'"],
       frameAncestors: ["'none'"],
     },
