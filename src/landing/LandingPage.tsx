@@ -173,18 +173,18 @@ export default function LandingPage() {
                 </p>
 
                 {/* CTA Buttons */}
-                <div className="flex flex-col sm:flex-row items-center lg:items-start gap-2 sm:gap-2.5 mb-4 sm:mb-5">
+                <div className="flex flex-col sm:flex-row items-center lg:items-start gap-3 sm:gap-3 mb-4 sm:mb-5">
                   <a
                     href="/chat.html"
-                    className="btn-tactile bg-brand-primary text-white font-bold px-6 sm:px-7 py-2.5 sm:py-3 rounded-2xl border-b-[4px] border-green-700 hover:bg-green-600 active:bg-green-700 active:top-[2px] transition-all text-base sm:text-lg flex items-center gap-2 shadow-lg w-full sm:w-auto justify-center"
+                    className="btn-tactile bg-brand-primary text-white font-bold px-8 sm:px-10 py-3.5 sm:py-4 rounded-2xl border-b-[4px] border-green-700 hover:bg-green-600 active:bg-green-700 active:top-[2px] transition-all text-lg sm:text-xl flex items-center gap-2.5 shadow-lg w-full sm:w-auto justify-center"
                     aria-label="Mulai belajar dengan Nalar.ai"
                   >
                     Mulai Sekarang — Gratis
-                    <ArrowRight className="w-5 h-5" aria-hidden="true" />
+                    <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />
                   </a>
                   <a
                     href="#features"
-                    className="btn-tactile bg-white text-slate-600 font-bold px-5 sm:px-6 py-2 sm:py-2.5 rounded-2xl border-b-[4px] border-slate-200 hover:bg-slate-50 active:bg-slate-100 active:top-[2px] transition-all text-sm sm:text-base border-2 border-slate-200 flex items-center gap-2 w-full sm:w-auto justify-center"
+                    className="btn-tactile bg-white text-slate-600 font-bold px-7 sm:px-8 py-3 sm:py-3.5 rounded-2xl border-b-[4px] border-slate-200 hover:bg-slate-50 active:bg-slate-100 active:top-[2px] transition-all text-base sm:text-lg border-2 border-slate-200 flex items-center gap-2.5 w-full sm:w-auto justify-center"
                   >
                     Pelajari Lebih Lanjut
                   </a>
