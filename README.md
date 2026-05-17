@@ -1,6 +1,6 @@
 <p align="center">
   <picture>
-    <img src="public/favicon.svg" alt="Nalar.ai Logo" width="96" height="96" />
+    <img src="public/nalarailogo.jpg" alt="Nalar.ai Logo" width="96" height="96" style="border-radius: 24px;" />
   </picture>
 </p>
 
@@ -242,15 +242,17 @@ Nalar.ai berbeda — AI ini jadi **tutor pribadi** yang:
 │                         VERCEL / EXPRESS           │
 │                          ┌─────────┴─────────┐     │
 │                          │   API Endpoint    │     │
-│                          │   chat.ts         │     │
+│                          │   server.ts /     │     │
+│                          │   api/chat.ts     │     │
 │                          └─────────┬─────────┘     │
 │                                    │               │
 │                          ┌─────────▼─────────┐     │
-│                          │  Google Gemini    │     │
-│                          │  API (genai)      │     │
+│                          │  GLM-4 Flash AI   │     │
+│                          │  (15s timeout)    │     │
 │                          └───────────────────┘     │
 │                                                     │
-│  🔒 Helmet.js  ·  🌐 CORS  ·  ⏱️ Rate Limiting     │
+│  🛡️ Helmet · CORS · Rate Limit · Input Validation │
+│  ⏱️ AbortController (504 on timeout)               │
 └─────────────────────────────────────────────────────┘
 ```
 
@@ -260,11 +262,12 @@ Nalar.ai berbeda — AI ini jadi **tutor pribadi** yang:
 |:------|:----------|
 | 🎨 **UI** | React 19 · TypeScript · Tailwind CSS v4 · Motion |
 | 🖥️ **Server** | Express.js · Node.js · Vercel Serverless |
-| 🧠 **AI** | Google Gemini API (`@google/genai`) |
+| 🧠 **AI** | GLM-4 Flash via API Proxy |
 | 📐 **Math** | KaTeX · remark-math · rehype-katex |
 | 🎯 **Ikon** | Lucide React |
+| 🔊 **Audio** | Web Audio API (synthetic — zero external deps) |
 | ⚡ **Build** | Vite · esbuild |
-| 🔒 **Security** | Helmet · CORS · Rate Limiter |
+| 🔒 **Security** | Helmet · CORS · Rate Limit · Input Validation · Fetch Timeout |
 
 ---
 
@@ -285,7 +288,9 @@ NalarAI/
 │   └── .env.example        → Template environment
 │
 ├── 📦 public/
-│   ├── favicon.svg         → Logo icon
+│   ├── nalarailogo.jpg     → Logo utama aplikasi
+│   ├── favicon.svg         → Favicon SVG
+│   ├── manifest.json       → PWA manifest
 │   ├── robots.txt          → Aturan crawler
 │   └── sitemap.xml         → Peta situs XML
 │
@@ -300,15 +305,19 @@ NalarAI/
 │   ├── 💬 components/      → Chat app (chat.html)
 │   │   ├── ChatInterface.tsx    → Main chat UI
 │   │   ├── MessageItem.tsx      → Bubble pesan
-│   │   ├── WelcomeScreen.tsx    → Onboarding
+│   │   ├── WelcomeScreen.tsm    → Onboarding
 │   │   ├── CertificateModal.tsx → Modal sertifikat
+│   │   ├── InteractionDispatcher.tsx
 │   │   └── interactions/        → Tantangan
 │   │       ├── Quiz.tsx
 │   │       ├── GapFill.tsx
 │   │       └── Paraphrase.tsx
 │   │
 │   └── 🔊 utils/
-│       └── audio.ts        → Sound effects
+│       └── audio.ts        → Web Audio API (synthetic)
+│
+├── 🔒 Security
+│   └── SECURITY.md         → Dokumentasi keamanan lengkap
 │
 ├── 🔌 api/
 │   └── chat.ts             → Vercel serverless endpoint
@@ -325,13 +334,13 @@ NalarAI/
 
 ```bash
 # 1️⃣ Clone & install
-git clone https://github.com/username/nalar-ai.git
-cd nalar-ai
+git clone https://github.com/Lmavour/NalarAI.git
+cd NalarAI
 npm install
 
-# 2️⃣ Setup API key
+# 2️⃣ Setup environment
 cp .env.example .env
-# ✏️ Edit .env → isi GEMINI_API_KEY=...
+# ✏️ Edit .env → isi AI_API_URL dan AI_API_KEY (jika ada)
 
 # 3️⃣ Jalankan!
 npm run dev
@@ -352,12 +361,18 @@ npm run dev
 ### 🔐 Environment Variables
 
 ```env
-# ✨ WAJIB
-GEMINI_API_KEY=ai_xxxxxxxxxxxx    # Dari https://aistudio.google.com/apikey
+# 🤖 AI API
+AI_API_URL="https://api.siputzx.my.id/api/ai/glm47flash"
+AI_API_KEY=""                       # API key jika diperlukan
 
-# ⚙️ OPSIONAL
-PORT=3000                          # Port server (default: 3000)
-NODE_ENV=development               # 'development' | 'production'
+# 🌐 Server
+PORT=3000                           # Port server (default: 3000)
+NODE_ENV=development                # 'development' | 'production'
+
+# 🛡️ Security
+ALLOWED_ORIGINS="http://localhost:3000,https://nalar-ai.web.id"
+RATE_LIMIT_WINDOW=60000             # Window rate limit (ms)
+RATE_LIMIT_MAX=20                   # Max request per window
 ```
 
 > ⚠️ **Jangan pernah commit `.env`!** Sudah di-`.gitignore`.
@@ -374,7 +389,7 @@ NODE_ENV=development               # 'development' | 'production'
 └──────────┬───────────┘
            ▼
 ┌──────────────────────┐
-│ 3. Set Env + Deploy  │──▶  GEMINI_API_KEY=...  ✅ Done!
+│ 3. Set Env + Deploy  │──▶  AI_API_URL=...  ✅ Done!
 └──────────────────────┘
 ```
 
@@ -385,18 +400,21 @@ NODE_ENV=development               # 'development' | 'production'
 ### SEO Scorecard
 
 ```
-┌────────────────────────────────────────┐
-│  ✅ Meta Tags (title, desc, keywords)  │
-│  ✅ Open Graph (Facebook, WA, LinkedIn)│
-│  ✅ Twitter Card (summary_large_image) │
-│  ✅ Canonical URL                      │
-│  ✅ JSON-LD (4 tipe structured data)   │
-│  ✅ XML Sitemap (/sitemap.xml)         │
-│  ✅ Robots.txt (/robots.txt)           │
-│  ✅ Semantic HTML (header,main,footer) │
-│  ✅ Heading hierarchy (h1→h2→h3)       │
-│  ✅ Alt texts + ARIA labels            │
-└────────────────────────────────────────┘
+┌──────────────────────────────────────────┐
+│  ✅ Meta Tags (title, desc, keywords)    │
+│  ✅ Open Graph (Facebook, WA, LinkedIn)  │
+│  ✅ Twitter Card (summary_large_image)   │
+│  ✅ Canonical URL                        │
+│  ✅ JSON-LD (4 tipe structured data)     │
+│  ✅ XML Sitemap (/sitemap.xml)           │
+│  ✅ Robots.txt (/robots.txt)             │
+│  ✅ PWA Manifest (/manifest.json)        │
+│  ✅ Apple Touch Icon                     │
+│  ✅ Color Scheme meta tag                │
+│  ✅ Semantic HTML (header,main,footer)   │
+│  ✅ Heading hierarchy (h1→h2→h3)         │
+│  ✅ Alt texts + ARIA labels              │
+└──────────────────────────────────────────┘
 ```
 
 ### Accessibility Checklist
@@ -413,6 +431,22 @@ NODE_ENV=development               # 'development' | 'production'
 │  🎯 Auto-focus textarea after send     │
 └────────────────────────────────────────┘
 ```
+
+---
+
+## 🛡️ Security
+
+| Layer | Implementasi |
+|:------|:-------------|
+| 🔒 **API Key Protection** | Server-side only — never reaches client |
+| 🛡️ **Helmet.js** | CSP, X-Frame-Options, HSTS, X-Content-Type-Options |
+| 🌐 **CORS** | Whitelist origin + no-credentials-by-default |
+| ⏱️ **Rate Limiting** | 20 req/menit/IP pada `/api/chat` |
+| ✅ **Input Validation** | Max 10 msg, max 2000 char/msg, role check |
+| ⏰ **Fetch Timeout** | 15 detik timeout ke AI API (AbortController) |
+| 🔊 **Self-hosted Audio** | Web Audio API — zero external CDN |
+
+> 📖 Detail lengkap: [`SECURITY.md`](SECURITY.md)
 
 ---
 
@@ -447,6 +481,12 @@ NODE_ENV=development               # 'development' | 'production'
   git push origin fitur/ide-keren
 ```
 
+🔗 **[GitHub Repository](https://github.com/Lmavour/NalarAI)**
+
+📝 **[Review Nalar.ai](https://forms.gle/wxU5Geh9TUM8hVQK7)** — beri masukan!
+
+🤝 **[Jadi Partner](mailto:partnership@nalar-ai.web.id)** — berkolaborasi dengan kami!
+
 > 💡 Untuk perubahan besar, silakan buka **Issue** dulu untuk diskusi ya!
 
 ---
@@ -464,7 +504,7 @@ NODE_ENV=development               # 'development' | 'production'
 
 <p align="center">
   <picture>
-    <img src="public/favicon.svg" alt="" width="32" height="32" />
+    <img src="public/nalarailogo.jpg" alt="" width="32" height="32" style="border-radius: 8px;" />
   </picture>
   <br />
   <sub>🧠 Dibuat untuk pendidikan Indonesia · Made for Indonesian education</sub>
