@@ -14,6 +14,8 @@ import {
   CheckCircle2,
   Zap,
   GraduationCap,
+  Handshake,
+  Building2,
 } from 'lucide-react';
 
 /* ─── Feature Data ──────────────────────────────────────────────── */
@@ -458,6 +460,73 @@ export default function LandingPage() {
                 Chat dengan Nalar.ai
                 <ArrowRight className="w-5 h-5" aria-hidden="true" />
               </a>
+            </motion.div>
+          </div>
+        </section>
+        {/* ─── Partners Section ─────────────────────────────────────── */}
+        <section className="py-12 sm:py-16 lg:py-20 bg-white" aria-label="Partner dan kolaborasi">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              viewport={{ once: true, margin: '-50px' }}
+              className="text-center mb-8 sm:mb-10"
+            >
+              <div className="inline-flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-full px-4 py-1.5 mb-4">
+                <Handshake className="w-4 h-4 text-amber-600" aria-hidden="true" />
+                <span className="text-xs font-bold text-amber-700 tracking-wide">Partnership</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-slate-800 mb-2 sm:mb-3">
+                Partner <span className="text-brand-primary">Kami</span>
+              </h2>
+              <p className="text-sm sm:text-base text-slate-500 font-medium max-w-md mx-auto leading-relaxed">
+                Berkolaborasi bersama berbagai institusi dan organisasi untuk menghadirkan pembelajaran aktif terbaik.
+              </p>
+            </motion.div>
+
+            {/* Empty partner slots */}
+            <motion.div
+              initial={{ y: 30, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              viewport={{ once: true, margin: '-30px' }}
+              className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 mb-8 sm:mb-10"
+            >
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="flex flex-col items-center justify-center p-6 sm:p-8 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/50 hover:border-brand-primary/30 hover:bg-green-50/20 transition-colors min-h-[100px] sm:min-h-[120px]"
+                >
+                  <Building2 className="w-6 h-6 sm:w-8 sm:h-8 text-slate-300 mb-2" aria-hidden="true" />
+                  <span className="text-[10px] sm:text-xs font-bold text-slate-300 uppercase tracking-wider text-center">
+                    Partner
+                  </span>
+                </div>
+              ))}
+            </motion.div>
+
+            {/* Become Partner CTA */}
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              viewport={{ once: true, margin: '-30px' }}
+              transition={{ delay: 0.2 }}
+              className="text-center"
+            >
+              <a
+                href="mailto:partnership@nalar-ai.web.id"
+                className="btn-tactile inline-flex items-center gap-2 bg-amber-500 text-white font-bold px-5 sm:px-6 py-2.5 sm:py-3 rounded-2xl border-b-[4px] border-amber-600 hover:bg-amber-400 active:bg-amber-500 active:top-[2px] transition-all text-sm sm:text-base shadow-lg"
+                aria-label="Jadi partner Nalar.ai"
+              >
+                <Handshake className="w-4 h-4" aria-hidden="true" />
+                Jadi Partner
+                <ArrowRight className="w-4 h-4" aria-hidden="true" />
+              </a>
+              <p className="text-xs text-slate-400 font-medium mt-3">
+                Ingin berkolaborasi? Hubungi kami di{' '}
+                <a href="mailto:partnership@nalar-ai.web.id" className="text-brand-primary font-bold hover:underline">
+                  partnership@nalar-ai.web.id
+                </a>
+              </p>
             </motion.div>
           </div>
         </section>
