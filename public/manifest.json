@@ -1,0 +1,31 @@
+{
+  "name": "Nalar.ai — Tutor AI Belajar Aktif",
+  "short_name": "Nalar.ai",
+  "description": "Tutor AI yang mendorong berpikir kritis melalui metode sokratik, tantangan interaktif, dan eksplorasi informasi.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#FFFFFF",
+  "theme_color": "#58CC02",
+  "lang": "id",
+  "dir": "ltr",
+  "categories": ["education", "productivity"],
+  "icons": [
+    {
+      "src": "/nalarailogo.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/nalarailogo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "prefer_related_applications": false,
+  "related_applications": []
+}
