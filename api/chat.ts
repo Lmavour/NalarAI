@@ -91,7 +91,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       headers['Authorization'] = `Bearer ${process.env.AI_API_KEY}`;
     }
 
-    const response = await fetch(url.toString(), { headers });
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000); // 15s timeout
+    const response = await fetch(url.toString(), { headers, signal: controller.signal });
+    clearTimeout(timeout);
 
     if (!response.ok) {
       throw new Error(`API returned status ${response.status}`);
@@ -106,8 +109,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
   } catch (error: any) {
     console.error('AI API Error:', error);
-    return res.status(500).json({
-      error: 'Gagal mendapatkan jawaban dari AI',
+
+    // Determine appropriate status code
+    let statusCode = 500;
+    let clientError = 'Gagal mendapatkan jawaban dari AI';
+
+    if (error.name === 'AbortError') {
+      statusCode = 504;
+      clientError = 'Server AI tidak merespons. Coba lagi nanti.';
+    }
+
+    // Don't expose internal error details to client in production
+    return res.status(statusCode).json({
+      error: clientError,
       ...(process.env.NODE_ENV !== 'production' && { details: error.message }),
     });
   }

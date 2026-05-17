@@ -20,6 +20,7 @@ import {
   Quote,
   ChevronLeft,
   ChevronRight,
+  Github,
 } from 'lucide-react';
 
 /* ─── Feature Data ──────────────────────────────────────────────── */
@@ -777,9 +778,21 @@ export default function LandingPage() {
             <p className="text-xs text-slate-400 font-medium text-center">
               Tutor AI untuk pembelajaran aktif & berpikir kritis
             </p>
-            <p className="text-xs text-slate-400 font-medium">
-              © {new Date().getFullYear()} Nalar.ai
-            </p>
+            <div className="flex items-center gap-3">
+              <a
+                href="https://github.com/Lmavour/NalarAI"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-tactile inline-flex items-center gap-1.5 bg-slate-800 text-white font-bold px-3.5 py-1.5 rounded-xl border-b-[3px] border-slate-900 hover:bg-slate-700 active:bg-slate-800 active:top-[1px] transition-all text-xs shadow-md"
+                aria-label="Kontribusi di GitHub (buka di tab baru)"
+              >
+                <Github className="w-3.5 h-3.5" aria-hidden="true" />
+                Contribute
+              </a>
+              <p className="text-xs text-slate-400 font-medium">
+                © {new Date().getFullYear()} Nalar.ai
+              </p>
+            </div>
           </div>
         </div>
       </footer>
