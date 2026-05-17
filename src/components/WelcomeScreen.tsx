@@ -15,12 +15,12 @@ interface WelcomeScreenProps {
 export default function WelcomeScreen({ onSelectSuggestion }: WelcomeScreenProps) {
   return (
     <div className="flex flex-col items-center justify-center py-6 sm:py-10 text-center">
-      <motion.div 
+      <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className="w-20 h-20 sm:w-24 sm:h-24 bg-brand-primary rounded-3xl flex items-center justify-center mb-6 sm:mb-10 shadow-[0_6px_0_0_rgb(22,163,74)] sm:shadow-[0_8px_0_0_rgb(22,163,74)] border-4 border-white"
+        className="mb-6 sm:mb-10"
       >
-        <Sparkles className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
+        <img src="/nalarailogo.jpg" alt="Nalar.ai Logo" className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl object-cover shadow-[0_6px_0_0_rgb(22,163,74)] sm:shadow-[0_8px_0_0_rgb(22,163,74)] border-4 border-white" />
       </motion.div>
       
       <motion.div

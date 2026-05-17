@@ -176,8 +176,8 @@ export default function ChatInterface() {
               {/* LG Sidebar (Desktop Only) */}
         <aside className="hidden lg:flex flex-col w-[280px] border-r border-slate-100 bg-slate-50/50 p-6 pt-8 overflow-y-auto scrollbar-hide" aria-label="Panel progress belajar">
           <div className="mb-6">
-            <a href="/" className="text-xl font-black tracking-tight text-slate-800 mb-4 block hover:opacity-80 transition-opacity" aria-label="Kembali ke halaman utama Nalar.ai">
-              Nalar<span className="text-brand-primary">.ai</span>
+            <a href="/" className="mb-4 block hover:opacity-80 transition-opacity" aria-label="Kembali ke halaman utama Nalar.ai">
+              <img src="/nalarailogo.jpg" alt="Nalar.ai Logo" className="h-10 rounded-xl object-cover" />
             </a>
             
             {/* Level Info */}

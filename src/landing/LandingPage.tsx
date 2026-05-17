@@ -103,9 +103,7 @@ export default function LandingPage() {
         >
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <a href="/" className="flex items-center gap-2.5 group" aria-label="Nalar.ai — Halaman utama">
-              <div className="w-9 h-9 bg-brand-primary rounded-xl flex items-center justify-center shadow-[0_3px_0_0_rgb(22,163,74)] border-2 border-white group-hover:scale-105 transition-transform">
-                <Sparkles className="w-4.5 h-4.5 text-white" aria-hidden="true" />
-              </div>
+              <img src="/nalarailogo.jpg" alt="Nalar.ai Logo" className="w-9 h-9 rounded-xl object-cover shadow-[0_3px_0_0_rgb(22,163,74)] border-2 border-white group-hover:scale-105 transition-transform" />
               <span className="text-xl font-black tracking-tight text-slate-800">
                 Nalar<span className="text-brand-primary">.ai</span>
               </span>
@@ -147,9 +145,7 @@ export default function LandingPage() {
               >
                 {/* Brand badge */}
                 <div className="inline-flex items-center gap-2 bg-white border border-slate-200 rounded-full px-4 py-1.5 mb-5 sm:mb-6 shadow-sm">
-                  <div className="w-5 h-5 bg-brand-primary rounded-lg flex items-center justify-center">
-                    <Sparkles className="w-3 h-3 text-white" aria-hidden="true" />
-                  </div>
+                  <img src="/nalarailogo.jpg" alt="Nalar.ai Logo" className="w-5 h-5 rounded-lg object-cover" />
                   <span className="text-xs font-bold text-slate-500 tracking-wide">Eksperimen Belajar Aktif</span>
                 </div>
 
@@ -220,9 +216,7 @@ export default function LandingPage() {
                 <div className="relative w-48 h-48 sm:w-56 sm:h-56 lg:w-64 lg:h-64">
                   {/* Main card */}
                   <div className="absolute inset-0 bg-white rounded-[40px] shadow-xl border border-slate-100 flex items-center justify-center">
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 bg-brand-primary rounded-[24px] sm:rounded-[28px] flex items-center justify-center shadow-[0_5px_0_0_rgb(22,163,74)]">
-                      <Sparkles className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 text-white" />
-                    </div>
+                    <img src="/nalarailogo.jpg" alt="Nalar.ai Logo" className="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 rounded-[24px] sm:rounded-[28px] object-cover shadow-[0_5px_0_0_rgb(22,163,74)]" />
                   </div>
                   {/* Floating card 1 — Quiz */}
                   <motion.div
@@ -449,9 +443,7 @@ export default function LandingPage() {
               whileInView={{ y: 0, opacity: 1 }}
               viewport={{ once: true, margin: '-50px' }}
             >
-              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-white rounded-3xl flex items-center justify-center mb-5 sm:mb-6 shadow-[0_6px_0_0_rgb(22,163,74)] border-4 border-green-400 mx-auto" aria-hidden="true">
-                <Sparkles className="w-7 h-7 sm:w-8 sm:h-8 text-brand-primary" />
-              </div>
+              <img src="/nalarailogo.jpg" alt="Nalar.ai Logo" className="w-14 h-14 sm:w-16 sm:h-16 rounded-3xl object-cover mb-5 sm:mb-6 shadow-[0_6px_0_0_rgb(22,163,74)] border-4 border-green-400 mx-auto" aria-hidden="true" />
               <h2 className="fluid-text-cta font-black tracking-tight text-white mb-3 sm:mb-4">
                 Mulai Belajar Sekarang
               </h2>
@@ -476,9 +468,7 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 bg-brand-primary rounded-lg flex items-center justify-center shadow-[0_2px_0_0_rgb(22,163,74)] border border-white" aria-hidden="true">
-                <Sparkles className="w-3 h-3 text-white" />
-              </div>
+              <img src="/nalarailogo.jpg" alt="Nalar.ai Logo" className="w-6 h-6 rounded-lg object-cover shadow-[0_2px_0_0_rgb(22,163,74)] border border-white" aria-hidden="true" />
               <span className="text-sm font-black text-slate-800">
                 Nalar<span className="text-brand-primary">.ai</span>
               </span>
