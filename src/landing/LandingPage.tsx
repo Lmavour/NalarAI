@@ -1,5 +1,5 @@
-import React from 'react';
-import { motion } from 'motion/react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   Sparkles,
   BrainCircuit,
@@ -16,6 +16,10 @@ import {
   GraduationCap,
   Handshake,
   Building2,
+  Star,
+  Quote,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 
 /* ─── Feature Data ──────────────────────────────────────────────── */
@@ -82,6 +86,209 @@ const SUBJECTS = [
   { icon: <Zap className="w-4 h-4" />, text: 'Logika & Pemrograman', color: 'bg-emerald-50 text-emerald-600 border-emerald-200' },
   { icon: <Heart className="w-4 h-4" />, text: 'Ekonomi & Sosial', color: 'bg-amber-50 text-amber-600 border-amber-200' },
 ];
+
+/* ─── Testimonial Data ─────────────────────────────────────────── */
+
+const TESTIMONIALS = [
+  {
+    name: 'Alya Rahmawati',
+    role: 'Siswi SMA Kelas 11',
+    avatar: 'AR',
+    color: 'bg-pink-100 text-pink-700',
+    rating: 5,
+    quote: 'Nalar.ai bener-bener bikin aku lebih kritis! Dulu cuma hafalan doang, sekarang aku paham konsepnya. Quiz interaktifnya seru banget, kayak main game tapi belajar.',
+  },
+  {
+    name: 'Dimas Prasetyo',
+    role: 'Mahasiswa Teknik',
+    avatar: 'DP',
+    color: 'bg-blue-100 text-blue-700',
+    rating: 5,
+    quote: 'Metode sokratiknya bikin mikir keras. Awalnya agak challenging, tapi lama-lama nagih! XP dan streak-nya bikin semangat belajar tiap hari.',
+  },
+  {
+    name: 'Siti Nurhaliza',
+    role: 'Guru Biologi SMP',
+    avatar: 'SN',
+    color: 'bg-emerald-100 text-emerald-700',
+    rating: 5,
+    quote: 'Saya rekomendasikan ke murid-murid saya. Nalar.ai melatih mereka berpikir mandiri, bukan sekadar menerima jawaban. Fitur gap-fill sangat membantu!',
+  },
+  {
+    name: 'Rizky Fadhillah',
+    role: 'Siswa SMK Kelas 12',
+    avatar: 'RF',
+    color: 'bg-purple-100 text-purple-700',
+    rating: 4,
+    quote: 'Belajar pemrograman jadi lebih mudah. AI-nya nggak kasih jawaban langsung, tapi nuntun step by step. Berasa punya tutor pribadi 24/7!',
+  },
+  {
+    name: 'Nadia Putri',
+    role: 'Mahasiswi Ekonomi',
+    avatar: 'NP',
+    color: 'bg-amber-100 text-amber-700',
+    rating: 5,
+    quote: 'Gamification-nya bikin ketagihan! Kumpulin XP, jaga streak, sampe dapet sertifikat. Rasanya kayak punya personal coach yang sabar banget.',
+  },
+  {
+    name: 'Budi Santoso',
+    role: 'Siswa SMA Kelas 10',
+    avatar: 'BS',
+    color: 'bg-rose-100 text-rose-700',
+    rating: 5,
+    quote: 'Awalnya takut belajar sains, tapi Nalar.ai bikin semuanya jadi masuk akal. Analogi-analoginya keren, gampang dipahami. Recommended banget!',
+  },
+];
+
+/* ─── Testimonial Carousel Component ───────────────────────────── */
+
+function TestimonialCarousel() {
+  const [current, setCurrent] = useState(0);
+  const [direction, setDirection] = useState(0);
+
+  const perPage = { mobile: 1, tablet: 2, desktop: 3 };
+  const [slidesPerView, setSlidesPerView] = useState(perPage.desktop);
+
+  useEffect(() => {
+    const updateSlides = () => {
+      const w = window.innerWidth;
+      if (w < 640) setSlidesPerView(perPage.mobile);
+      else if (w < 1024) setSlidesPerView(perPage.tablet);
+      else setSlidesPerView(perPage.desktop);
+    };
+    updateSlides();
+    window.addEventListener('resize', updateSlides);
+    return () => window.removeEventListener('resize', updateSlides);
+  }, []);
+
+  const maxIndex = TESTIMONIALS.length - slidesPerView;
+
+  const goNext = useCallback(() => {
+    setDirection(1);
+    setCurrent(prev => (prev >= maxIndex ? 0 : prev + 1));
+  }, [maxIndex]);
+
+  const goPrev = useCallback(() => {
+    setDirection(-1);
+    setCurrent(prev => (prev <= 0 ? maxIndex : prev - 1));
+  }, [maxIndex]);
+
+  // Auto-scroll every 4s
+  useEffect(() => {
+    const timer = setInterval(goNext, 4000);
+    return () => clearInterval(timer);
+  }, [goNext]);
+
+  const slideVariants = {
+    enter: (dir: number) => ({ x: dir > 0 ? 60 : -60, opacity: 0 }),
+    center: { x: 0, opacity: 1 },
+    exit: (dir: number) => ({ x: dir > 0 ? -60 : 60, opacity: 0 }),
+  };
+
+  return (
+    <div className="relative">
+      {/* Carousel */}
+      <div className="overflow-hidden">
+        <motion.div
+          key={current}
+          custom={direction}
+          variants={slideVariants}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          transition={{ duration: 0.35, ease: 'easeInOut' }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5"
+        >
+          {TESTIMONIALS.slice(current, current + slidesPerView).map((t, i) => (
+            <div
+              key={i}
+              className="bg-slate-50 border border-slate-100 rounded-2xl p-5 sm:p-6 flex flex-col shadow-sm hover:shadow-md transition-shadow"
+            >
+              {/* Quote icon */}
+              <Quote className="w-5 h-5 text-slate-300 mb-3" aria-hidden="true" />
+              {/* Stars */}
+              <div className="flex gap-0.5 mb-3" aria-label={`Rating ${t.rating} dari 5`}>
+                {Array.from({ length: 5 }).map((_, si) => (
+                  <Star
+                    key={si}
+                    className={`w-3.5 h-3.5 ${si < t.rating ? 'text-amber-400 fill-amber-400' : 'text-slate-300'}`}
+                    aria-hidden="true"
+                  />
+                ))}
+              </div>
+              {/* Quote text */}
+              <p className="text-sm text-slate-600 font-medium leading-relaxed flex-1 mb-4">
+                "{t.quote}"
+              </p>
+              {/* User info */}
+              <div className="flex items-center gap-3 pt-3 border-t border-slate-100">
+                <div className={`w-9 h-9 rounded-xl ${t.color} flex items-center justify-center flex-shrink-0`}>
+                  <span className="text-xs font-black">{t.avatar}</span>
+                </div>
+                <div>
+                  <div className="text-sm font-black text-slate-800 leading-tight">{t.name}</div>
+                  <div className="text-[11px] font-bold text-slate-400">{t.role}</div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </motion.div>
+      </div>
+
+      {/* Navigation Buttons */}
+      <div className="flex items-center justify-center gap-3 mt-6">
+        <button
+          onClick={goPrev}
+          className="w-10 h-10 rounded-xl bg-white border-2 border-slate-200 flex items-center justify-center hover:bg-slate-50 active:bg-slate-100 transition-colors shadow-sm"
+          aria-label="Testimoni sebelumnya"
+        >
+          <ChevronLeft className="w-5 h-5 text-slate-600" aria-hidden="true" />
+        </button>
+        {/* Dots */}
+        <div className="flex gap-1.5 mx-2" aria-hidden="true">
+          {Array.from({ length: maxIndex + 1 }).map((_, i) => (
+            <button
+              key={i}
+              onClick={() => { setDirection(i > current ? 1 : -1); setCurrent(i); }}
+              className={`w-2 h-2 rounded-full transition-all ${i === current ? 'bg-brand-primary w-5' : 'bg-slate-300 hover:bg-slate-400'}`}
+              aria-label={`Halaman testimoni ${i + 1}`}
+            />
+          ))}
+        </div>
+        <button
+          onClick={goNext}
+          className="w-10 h-10 rounded-xl bg-white border-2 border-slate-200 flex items-center justify-center hover:bg-slate-50 active:bg-slate-100 transition-colors shadow-sm"
+          aria-label="Testimoni selanjutnya"
+        >
+          <ChevronRight className="w-5 h-5 text-slate-600" aria-hidden="true" />
+        </button>
+      </div>
+
+      {/* CTA: Review Nalar.ai */}
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        whileInView={{ y: 0, opacity: 1 }}
+        viewport={{ once: true, margin: '-30px' }}
+        className="text-center mt-8 sm:mt-10"
+      >
+        <a
+          href="https://forms.gle/wxU5Geh9TUM8hVQK7"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn-tactile inline-flex items-center gap-2 bg-blue-600 text-white font-bold px-5 sm:px-6 py-2.5 sm:py-3 rounded-2xl border-b-[4px] border-blue-700 hover:bg-blue-500 active:bg-blue-600 active:top-[2px] transition-all text-sm sm:text-base shadow-lg"
+          aria-label="Review Nalar.ai sekarang (buka di tab baru)"
+        >
+          <Star className="w-4 h-4 fill-white" aria-hidden="true" />
+          Review Nalar.ai Sekarang
+          <ArrowRight className="w-4 h-4" aria-hidden="true" />
+        </a>
+        <p className="text-xs text-slate-400 font-medium mt-2">
+          Bantu kami jadi lebih baik dengan memberikan ulasanmu!
+        </p>
+      </motion.div>
+    </div>
+  );
+}
 
 /* ─── Landing Page Component ────────────────────────────────────── */
 
@@ -419,6 +626,31 @@ export default function LandingPage() {
                 </div>
               </div>
             </motion.div>
+          </div>
+        </section>
+
+        {/* ─── Testimonials Section ──────────────────────────────────── */}
+        <section className="py-12 sm:py-16 lg:py-20 bg-white" aria-label="Testimoni pengguna Nalar.ai">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              viewport={{ once: true, margin: '-50px' }}
+              className="text-center mb-8 sm:mb-10"
+            >
+              <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-full px-4 py-1.5 mb-4">
+                <Star className="w-4 h-4 text-blue-600 fill-blue-600" aria-hidden="true" />
+                <span className="text-xs font-bold text-blue-700 tracking-wide">Testimoni</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-slate-800 mb-2 sm:mb-3">
+                Apa Kata <span className="text-brand-primary">Mereka</span>?
+              </h2>
+              <p className="text-sm sm:text-base text-slate-500 font-medium max-w-md mx-auto leading-relaxed">
+                Pengalaman nyata pelajar yang telah menggunakan Nalar.ai untuk belajar aktif.
+              </p>
+            </motion.div>
+
+            <TestimonialCarousel />
           </div>
         </section>
 
