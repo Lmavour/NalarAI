@@ -175,7 +175,7 @@ function TestimonialCarousel() {
 
   // Auto-scroll every 4s
   useEffect(() => {
-    const timer = setInterval(goNext, 4000);
+    const timer = setInterval(goNext, 15000);
     return () => clearInterval(timer);
   }, [goNext]);
 
