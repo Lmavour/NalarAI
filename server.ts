@@ -108,6 +108,9 @@ const validateChatRequest = (req: express.Request, res: express.Response, next: 
 
   // Validate each message
   for (const msg of messages) {
+    if (!msg || typeof msg !== 'object') {
+      return res.status(400).json({ error: 'Format pesan tidak valid' });
+    }
     if (!msg.role || !msg.content) {
       return res.status(400).json({ error: 'Setiap pesan harus memiliki role dan content' });
     }
@@ -210,7 +213,8 @@ app.post('/api/chat', validateChatRequest, async (req, res) => {
       throw new Error('Invalid API response format');
     }
   } catch (error: any) {
-    console.error('AI API Error:', error);
+    // Note: Do NOT log the error object directly — it may contain the API URL
+    console.error(`AI API Error (${error.name || 'unknown'}): ${error.message}`);
 
     // Determine appropriate status code
     let statusCode = 500;
