@@ -1,4 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import Cerebras from '@cerebras/cerebras_cloud_sdk';
+import type { ChatCompletionCreateParams } from '@cerebras/cerebras_cloud_sdk/resources/chat/completions';
 
 const ACTIVE_LEARNING_PROMPT = `
 You are "Nalar.ai", a specialized pedagogical AI assistant designed to foster active learning.
@@ -34,7 +36,24 @@ STRICT UNIVERSAL RULES:
 TONE: Intellectually stimulating, sharp, but very supportive.
 `;
 
-// ─── In-Memory Rate Limiter ──────────────────────────────────────────────
+// ─── Cerebras Client ──────────────────────────────────────────────────
+const client = new Cerebras({
+  apiKey: process.env.CEREBRAS_API_KEY,
+});
+
+// ─── Model Alternation ────────────────────────────────────────────────
+// Alternate between two models to distribute load and avoid rate limits.
+// Uses a counter that persists within a warm serverless instance.
+const MODELS = ['llama3.1-8b', 'gpt-oss-120b'];
+let modelIndex = 0;
+
+function getNextModel(): string {
+  const model = MODELS[modelIndex % MODELS.length];
+  modelIndex++;
+  return model;
+}
+
+// ─── In-Memory Rate Limiter ──────────────────────────────────────────
 // NOTE: This is a simple in-memory rate limiter for Vercel serverless functions.
 // It works within a single warm instance but does NOT persist across cold starts
 // or multiple instances. For production-grade distributed rate limiting, consider:
@@ -83,7 +102,7 @@ function checkRateLimit(ip: string): { allowed: boolean; remaining: number; rese
   return { allowed: true, remaining: RATE_LIMIT_MAX - entry.count, resetTime: entry.resetTime };
 }
 
-// ─── CORS Configuration ──────────────────────────────────────────────────
+// ─── CORS Configuration ──────────────────────────────────────────────
 // Read allowed origins from env var (same pattern as server.ts)
 const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS?.split(',').map(o => o.trim()) || [
   'https://nalar-ai-tau.vercel.app',
@@ -109,7 +128,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Access-Control-Max-Age', '86400');
 
   // Handle preflight — MUST be checked BEFORE the POST-only guard
-  // (Original code had this AFTER the POST check, making it unreachable/dead code)
   if (req.method === 'OPTIONS') {
     return res.status(204).end();
   }
@@ -119,7 +137,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // ─── Rate Limiting ────────────────────────────────────────────────────
+  // ─── Rate Limiting ──────────────────────────────────────────────────
   const clientIp = req.headers['x-forwarded-for'] as string || req.headers['x-real-ip'] as string || 'unknown';
   // x-forwarded-for may contain multiple IPs; use the first (client) one
   const ip = clientIp.split(',')[0].trim();
@@ -138,7 +156,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   }
 
-  // ─── Input Validation ─────────────────────────────────────────────────
+  // ─── Input Validation ───────────────────────────────────────────────
   const { messages } = req.body;
 
   if (!messages || !Array.isArray(messages)) {
@@ -176,58 +194,58 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(413).json({ error: 'Request body terlalu besar (max 100KB)' });
   }
 
-  // ─── AI API Proxy ─────────────────────────────────────────────────────
+  // ─── Cerebras AI API Call ────────────────────────────────────────────
   try {
-    const lastMessage = messages[messages.length - 1].content;
+    // Build the messages array for Cerebras SDK using proper typed message objects
+    const apiMessages: ChatCompletionCreateParams['messages'] = [
+      { role: 'system', content: ACTIVE_LEARNING_PROMPT },
+    ];
 
-    let contextualPrompt = lastMessage;
-    if (messages.length > 1) {
-      const history = messages.slice(-5, -1)
-        .map((m: any) => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`)
-        .join('\n');
-      contextualPrompt = `Berikut adalah percakapan sebelumnya:\n${history}\n\nUser: ${lastMessage}`;
+    // Add conversation history (last 5 messages for context)
+    const recentMessages = messages.length > 5 ? messages.slice(-5) : messages;
+    for (const msg of recentMessages) {
+      if (msg.role === 'user') {
+        apiMessages.push({ role: 'user', content: msg.content });
+      } else {
+        apiMessages.push({ role: 'assistant', content: msg.content });
+      }
     }
 
-    const apiUrl = process.env.AI_API_URL || 'https://api.siputzx.my.id/api/ai/gptoss120b';
-    const url = new URL(apiUrl);
-    url.searchParams.append('prompt', contextualPrompt);
-    url.searchParams.append('system', ACTIVE_LEARNING_PROMPT);
-    url.searchParams.append('temperature', '0.7');
+    // Select model using round-robin alternation
+    const model = getNextModel();
 
-    const headers: Record<string, string> = {};
-    if (process.env.AI_API_KEY) {
-      headers['Authorization'] = `Bearer ${process.env.AI_API_KEY}`;
+    const chatCompletion = await client.chat.completions.create({
+      messages: apiMessages,
+      model: model,
+      stream: false,
+      max_completion_tokens: 32768,
+      temperature: 0.7,
+      top_p: 1,
+    });
+
+    // Extract the response content
+    const content = chatCompletion.choices[0]?.message?.content;
+
+    if (!content) {
+      throw new Error('Empty response from Cerebras API');
     }
 
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 15000); // 15s timeout
-    const response = await fetch(url.toString(), { headers, signal: controller.signal });
-    clearTimeout(timeout);
-
-    if (!response.ok) {
-      throw new Error(`API returned status ${response.status}`);
-    }
-
-    const result = await response.json();
-
-    if (result.status && result.data && result.data.response) {
-      return res.status(200).json({ content: result.data.response });
-    } else {
-      throw new Error('Invalid API response format');
-    }
+    return res.status(200).json({ content });
   } catch (error: any) {
     // Determine appropriate status code
     let statusCode = 500;
     let clientError = 'Gagal mendapatkan jawaban dari AI';
 
-    if (error.name === 'AbortError') {
-      statusCode = 504;
-      clientError = 'Server AI tidak merespons. Coba lagi nanti.';
+    if (error.status === 429) {
+      statusCode = 429;
+      clientError = 'Rate limit Cerebras tercapai. Coba lagi nanti.';
+    } else if (error.status === 401) {
+      statusCode = 500;
+      clientError = 'Konfigurasi API key tidak valid.';
     }
 
     // Don't expose internal error details to client in production
-    // Note: Do NOT log the error object directly — it may contain the API URL
-    console.error(`AI API Error (${error.name || 'unknown'}): ${error.message}`);
+    console.error(`Cerebras API Error (${error.name || 'unknown'}): ${error.message}`);
     return res.status(statusCode).json({
       error: clientError,
       ...(process.env.NODE_ENV !== 'production' && { details: error.message }),

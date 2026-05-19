@@ -5,11 +5,29 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import Cerebras from '@cerebras/cerebras_cloud_sdk';
+import type { ChatCompletionCreateParams } from '@cerebras/cerebras_cloud_sdk/resources/chat/completions';
 
 dotenv.config();
 
 const app = express();
 const PORT = parseInt(process.env.PORT || '3000', 10);
+
+// ─── Cerebras Client ──────────────────────────────────────────────────
+const client = new Cerebras({
+  apiKey: process.env.CEREBRAS_API_KEY,
+});
+
+// ─── Model Alternation ────────────────────────────────────────────────
+// Alternate between two models to distribute load and avoid rate limits.
+const MODELS = ['llama3.1-8b', 'gpt-oss-120b'];
+let modelIndex = 0;
+
+function getNextModel(): string {
+  const model = MODELS[modelIndex % MODELS.length];
+  modelIndex++;
+  return model;
+}
 
 // ─── Security Middleware ───────────────────────────────────────────────
 
@@ -49,7 +67,7 @@ app.use(helmet({
         : ["'self'", "'unsafe-inline'"],  // Vite HMR needs unsafe-inline in dev
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       imgSrc: ["'self'", "data:", "https://nalar-ai-tau.vercel.app", "https://nalar-ai.web.id"],
-      connectSrc: ["'self'", "https://api.siputzx.my.id", "https://nalar-ai-tau.vercel.app", "https://nalar-ai.web.id"],
+      connectSrc: ["'self'", "https://nalar-ai-tau.vercel.app", "https://nalar-ai.web.id"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       mediaSrc: ["'self'"],
       objectSrc: ["'none'"],
@@ -173,56 +191,55 @@ app.post('/api/chat', validateChatRequest, async (req, res) => {
   const { messages } = req.body;
 
   try {
-    const lastMessage = messages[messages.length - 1].content;
-    
-    // Constructing history context from recent messages
-    let contextualPrompt = lastMessage;
-    if (messages.length > 1) {
-      const history = messages.slice(-5, -1) // last 4 messages for context
-        .map((m: any) => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`)
-        .join('\n');
-      contextualPrompt = `Berikut adalah percakapan sebelumnya:\n${history}\n\nUser: ${lastMessage}`;
+    // Build the messages array for Cerebras SDK using proper typed message objects
+    const apiMessages: ChatCompletionCreateParams['messages'] = [
+      { role: 'system', content: ACTIVE_LEARNING_PROMPT },
+    ];
+
+    // Add conversation history (last 5 messages for context)
+    const recentMessages = messages.length > 5 ? messages.slice(-5) : messages;
+    for (const msg of recentMessages) {
+      if (msg.role === 'user') {
+        apiMessages.push({ role: 'user', content: msg.content });
+      } else {
+        apiMessages.push({ role: 'assistant', content: msg.content });
+      }
     }
 
-    const apiUrl = process.env.AI_API_URL || 'https://api.siputzx.my.id/api/ai/gptoss120b';
-    const url = new URL(apiUrl);
-    url.searchParams.append('prompt', contextualPrompt);
-    url.searchParams.append('system', ACTIVE_LEARNING_PROMPT);
-    url.searchParams.append('temperature', '0.7');
+    // Select model using round-robin alternation
+    const model = getNextModel();
 
-    // If API key is configured, add it to headers
-    const headers: Record<string, string> = {};
-    if (process.env.AI_API_KEY) {
-      headers['Authorization'] = `Bearer ${process.env.AI_API_KEY}`;
+    const chatCompletion = await client.chat.completions.create({
+      messages: apiMessages,
+      model: model,
+      stream: false,
+      max_completion_tokens: 32768,
+      temperature: 0.7,
+      top_p: 1,
+    });
+
+    // Extract the response content
+    const content = chatCompletion.choices[0]?.message?.content;
+
+    if (!content) {
+      throw new Error('Empty response from Cerebras API');
     }
 
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 15000); // 15s timeout
-    const response = await fetch(url.toString(), { headers, signal: controller.signal });
-    clearTimeout(timeout);
-    
-    if (!response.ok) {
-      throw new Error(`API returned status ${response.status}`);
-    }
-
-    const result = await response.json();
-    
-    if (result.status && result.data && result.data.response) {
-      res.json({ content: result.data.response });
-    } else {
-      throw new Error('Invalid API response format');
-    }
+    res.json({ content });
   } catch (error: any) {
-    // Note: Do NOT log the error object directly — it may contain the API URL
-    console.error(`AI API Error (${error.name || 'unknown'}): ${error.message}`);
+    // Note: Do NOT log the error object directly — it may contain sensitive info
+    console.error(`Cerebras API Error (${error.name || 'unknown'}): ${error.message}`);
 
     // Determine appropriate status code
     let statusCode = 500;
     let clientError = 'Gagal mendapatkan jawaban dari AI';
 
-    if (error.name === 'AbortError') {
-      statusCode = 504;
-      clientError = 'Server AI tidak merespons. Coba lagi nanti.';
+    if (error.status === 429) {
+      statusCode = 429;
+      clientError = 'Rate limit Cerebras tercapai. Coba lagi nanti.';
+    } else if (error.status === 401) {
+      statusCode = 500;
+      clientError = 'Konfigurasi API key tidak valid.';
     }
 
     // Don't expose internal error details to client in production
@@ -270,6 +287,7 @@ async function startServer() {
     console.log(`🔒 CORS origins: ${allowedOrigins.join(', ')}`);
     console.log(`🛡️  Rate limit: ${process.env.RATE_LIMIT_MAX || '20'} req/min per IP`);
     console.log(`📦 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🔄 Models: ${MODELS.join(', ')} (round-robin)`);
   });
 }
 
