@@ -5,7 +5,9 @@ import { Message } from '../types';
 import MessageItem from './MessageItem';
 import WelcomeScreen from './WelcomeScreen';
 import CertificateModal from './CertificateModal';
+import GameOverModal from './GameOverModal';
 import { playSound, preloadSounds } from '../utils/audio';
+import { updateDailyStreak, getDailyStreak, getBestStreak, resetSessionData } from '../utils/streak';
 
 export default function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -33,6 +35,9 @@ export default function ChatInterface() {
     return 0;
   });
   const [showCertificate, setShowCertificate] = useState(false);
+  const [dailyStreak, setDailyStreak] = useState(() => getDailyStreak());
+  const [bestStreak, setBestStreak] = useState(() => getBestStreak());
+  const [showGameOver, setShowGameOver] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -67,6 +72,13 @@ export default function ChatInterface() {
     localStorage.setItem('nalar_streak', streak.toString());
   }, [hearts, xp, streak]);
 
+  // Show game over when hearts reach 0
+  useEffect(() => {
+    if (hearts === 0) {
+      setShowGameOver(true);
+    }
+  }, [hearts]);
+
   const triggerHaptic = () => {
     if (window.navigator && window.navigator.vibrate) {
       window.navigator.vibrate(50);
@@ -80,7 +92,7 @@ export default function ChatInterface() {
   }, [messages, isLoading]);
 
   const handleSendMessage = async (content: string) => {
-    if (!content.trim() || isLoading) return;
+    if (!content.trim() || isLoading || showGameOver) return;
 
     playSound('pop');
     triggerHaptic();
@@ -151,6 +163,10 @@ export default function ChatInterface() {
         return nextXp;
       });
       setStreak(prev => prev + 1);
+      // Update daily streak on successful interaction
+      const newDailyStreak = updateDailyStreak();
+      setDailyStreak(newDailyStreak);
+      setBestStreak(getBestStreak());
       playSound('success');
     } else {
       setHearts(prev => Math.max(0, prev - 1));
@@ -159,6 +175,17 @@ export default function ChatInterface() {
     }
     handleSendMessage(result.feedback);
   }, [xp]);
+
+  const handleRestartSession = () => {
+    resetSessionData();
+    setMessages([]);
+    setHearts(5);
+    setStreak(0);
+    setXp(0);
+    setShowGameOver(false);
+    setInput('');
+    setIsLoading(false);
+  };
 
 
 
@@ -208,9 +235,9 @@ export default function ChatInterface() {
                 <span className="text-base font-black text-brand-error">{hearts}</span>
                 <span className="text-[8px] font-black text-rose-300 uppercase tracking-widest mt-0.5">Nyawa</span>
               </div>
-              <div className="bg-amber-50/50 rounded-2xl p-3 border border-amber-100 flex flex-col items-center justify-center" aria-label={`Streak: ${streak}`}>
+              <div className="bg-amber-50/50 rounded-2xl p-3 border border-amber-100 flex flex-col items-center justify-center" aria-label={`Streak Harian: ${dailyStreak}`}>
                 <Flame className="w-5 h-5 text-brand-accent fill-current mb-0.5" aria-hidden="true" />
-                <span className="text-base font-black text-brand-accent">{streak}</span>
+                <span className="text-base font-black text-brand-accent">{dailyStreak}</span>
                 <span className="text-[8px] font-black text-amber-300 uppercase tracking-widest mt-0.5">Streak</span>
               </div>
             </div>
@@ -235,6 +262,15 @@ export default function ChatInterface() {
                 <div>
                   <div className="text-[10px] font-black text-slate-800">Total XP</div>
                   <div className="text-[9px] font-bold text-slate-400">{xp} points</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2.5 p-2.5 bg-white/50 rounded-2xl border border-slate-100/50">
+                <div className="w-7 h-7 rounded-xl bg-amber-100 flex items-center justify-center" aria-hidden="true">
+                  <Flame className="w-3.5 h-3.5 text-amber-500" />
+                </div>
+                <div>
+                  <div className="text-[10px] font-black text-slate-800">Streak Terbaik</div>
+                  <div className="text-[9px] font-bold text-slate-400">{bestStreak} hari</div>
                 </div>
               </div>
             </div>
@@ -292,9 +328,9 @@ export default function ChatInterface() {
                   <span className="text-[11px] md:text-sm">{hearts}</span>
                 </div>
                 
-                <div className="flex items-center gap-1 text-brand-accent font-black px-1" aria-label={`Streak: ${streak}`}>
+                <div className="flex items-center gap-1 text-brand-accent font-black px-1" aria-label={`Streak Harian: ${dailyStreak}`}>
                   <Flame className="w-3.5 h-3.5 md:w-4 md:h-4 fill-current" aria-hidden="true" />
-                  <span className="text-[11px] md:text-sm">{streak}</span>
+                  <span className="text-[11px] md:text-sm">{dailyStreak}</span>
                 </div>
                 
                 <div className="hidden xs:flex items-center gap-1 text-slate-400 font-black px-1" aria-label={`Total XP: ${xp}`}>
@@ -380,12 +416,12 @@ export default function ChatInterface() {
                     className="flex-1 bg-slate-50 border-2 border-slate-200 rounded-2xl px-4 py-2.5 md:py-3 focus:ring-0 focus:bg-white focus:border-brand-primary transition-all resize-none min-h-[44px] md:min-h-[48px] max-h-32 text-[15px] md:text-base font-bold text-slate-800 placeholder:text-slate-400"
                     rows={1}
                     aria-label="Ketik pesan"
-                    disabled={isLoading}
+                    disabled={isLoading || showGameOver}
                   />
                   <div className="flex-shrink-0">
                     <button
                       onClick={() => handleSendMessage(input)}
-                      disabled={!input.trim() || isLoading}
+                      disabled={!input.trim() || isLoading || showGameOver}
                       aria-label="Kirim pesan"
                       type="submit"
                       className={`btn-tactile w-[44px] h-[44px] md:w-[48px] md:h-[48px] rounded-2xl flex items-center justify-center transition-all
@@ -405,10 +441,18 @@ export default function ChatInterface() {
       </div>
 
       {/* Certificate Modal */}
-      <CertificateModal 
-        isOpen={showCertificate} 
-        xp={xp} 
-        onClose={() => setShowCertificate(false)} 
+      <CertificateModal
+        isOpen={showCertificate}
+        xp={xp}
+        onClose={() => setShowCertificate(false)}
+      />
+
+      {/* Game Over Modal */}
+      <GameOverModal
+        isOpen={showGameOver}
+        streak={streak}
+        xp={xp}
+        onRestart={handleRestartSession}
       />
     </div>
   );
