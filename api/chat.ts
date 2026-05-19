@@ -188,7 +188,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       contextualPrompt = `Berikut adalah percakapan sebelumnya:\n${history}\n\nUser: ${lastMessage}`;
     }
 
-    const apiUrl = process.env.AI_API_URL || 'https://api.siputzx.my.id/api/ai/glm47flash';
+    const apiUrl = process.env.AI_API_URL || 'https://api.siputzx.my.id/api/ai/gptoss120b';
     const url = new URL(apiUrl);
     url.searchParams.append('prompt', contextualPrompt);
     url.searchParams.append('system', ACTIVE_LEARNING_PROMPT);

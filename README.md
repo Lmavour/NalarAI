@@ -362,7 +362,7 @@ npm run dev
 
 ```env
 # 🤖 AI API
-AI_API_URL="https://api.siputzx.my.id/api/ai/glm47flash"
+AI_API_URL="https://api.siputzx.my.id/api/ai/gptoss120b"
 AI_API_KEY=""                       # API key jika diperlukan
 
 # 🌐 Server

@@ -196,7 +196,7 @@ define: {
 
 | Variable | Purpose | Example |
 |----------|---------|---------|
-| `AI_API_URL` | External AI API base URL | `https://api.siputzx.my.id/api/ai/glm47flash` |
+| `AI_API_URL` | External AI API base URL | `https://api.siputzx.my.id/api/ai/gptoss120b` |
 | `ALLOWED_ORIGINS` | CORS whitelist (comma-separated) | `https://nalar.ai,https://app.nalar.ai` |
 | `NODE_ENV` | Environment mode | `production` |
 | `PORT` | Server port | `3000` |
