@@ -18,9 +18,10 @@ STRICT UNIVERSAL RULES:
 3. Language: Indonesian (Slang educational/professional mixed is OK).
 
 4. INTERACTIVE BLOCKS (MANDATORY):
-   You MUST end every single message with exactly ONE interactive block. 
+   You MUST end every single message with exactly ONE interactive block.
    CRITICAL: You MUST use double brackets [[TYPE:{...}]] and ensure you include ALL required JSON fields.
    DO NOT truncate the JSON.
+   IMPORTANT: Only use QUIZ, GAP_FILL, or PARAPHRASE. NEVER use other formats like FLOWCHART, MATCHING, TRUE_FALSE, etc.
 
    FORMATS (Double brackets are REQUIRED):
    
@@ -36,10 +37,21 @@ STRICT UNIVERSAL RULES:
 TONE: Intellectually stimulating, sharp, but very supportive.
 `;
 
-// ─── Cerebras Client ──────────────────────────────────────────────────
-const client = new Cerebras({
-  apiKey: process.env.CEREBRAS_API_KEY,
-});
+// ─── Cerebras Client (Lazy Singleton) ─────────────────────────────────
+// Lazy initialization to avoid crashing on module load when CEREBRAS_API_KEY
+// is not set (e.g., during Vercel cold start before env vars are injected).
+let _client: InstanceType<typeof Cerebras> | null = null;
+
+function getClient(): InstanceType<typeof Cerebras> {
+  if (!_client) {
+    const apiKey = process.env.CEREBRAS_API_KEY;
+    if (!apiKey) {
+      throw new Error('CEREBRAS_API_KEY environment variable is missing. Set it in Vercel dashboard or .env file.');
+    }
+    _client = new Cerebras({ apiKey });
+  }
+  return _client;
+}
 
 // ─── Model Alternation ────────────────────────────────────────────────
 // Alternate between two models to distribute load and avoid rate limits.
@@ -214,7 +226,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Select model using round-robin alternation
     const model = getNextModel();
 
-    const chatCompletion = await client.chat.completions.create({
+    // Add a 4-second delay before calling the API to avoid too-fast responses
+    await new Promise(resolve => setTimeout(resolve, 4000));
+
+    const chatCompletion = await getClient().chat.completions.create({
       messages: apiMessages,
       model: model,
       stream: false,
