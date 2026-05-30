@@ -58,53 +58,105 @@ function getClient(): InstanceType<typeof Cerebras> {
 // Use gpt-oss-120b as the sole model for higher quality responses.
 const MODEL = 'gpt-oss-120b';
 
-// ─── In-Memory Rate Limiter ──────────────────────────────────────────
-// NOTE: This is a simple in-memory rate limiter for Vercel serverless functions.
-// It works within a single warm instance but does NOT persist across cold starts
-// or multiple instances. For production-grade distributed rate limiting, consider:
-//   - Vercel Edge Config (Pro plan): https://vercel.com/docs/rate-limiting
-//   - Upstash Redis: https://upstash.com/docs/redis/features/ratelimiting
-const RATE_LIMIT_WINDOW_MS = parseInt(process.env.RATE_LIMIT_WINDOW || '60000', 10);
-const RATE_LIMIT_MAX = parseInt(process.env.RATE_LIMIT_MAX || '20', 10);
+// ─── Quota-Aware Dual-Layer Rate Limiter ──────────────────────────────────
+// Cerebras gpt-oss-120b quota: 5 req/min, 150 req/hour, 2,400 req/day
+// Tokens: 30K/min, 1M/hour, 1M/day
+// Strategy: Dual-layer (global quota + per-IP fairness) to support ~10 concurrent users
+// NOTE: In-memory only — does NOT persist across Vercel cold starts or multiple instances.
+// For production-grade distributed rate limiting, consider Upstash Redis.
 
 interface RateLimitEntry {
   count: number;
   resetTime: number;
 }
 
-const rateLimitMap = new Map<string, RateLimitEntry>();
+// Global rate limits (with safety buffer for Cerebras quota)
+const GLOBAL_LIMITS = {
+  minute: { windowMs: 60_000, max: 4 },      // 4/min (quota: 5, 1 buffer)
+  hour:   { windowMs: 3_600_000, max: 140 },  // 140/hr (quota: 150, 10 buffer)
+  day:    { windowMs: 86_400_000, max: 2_300 },// 2,300/day (quota: 2,400, 100 buffer)
+};
 
-function checkRateLimit(ip: string): { allowed: boolean; remaining: number; resetTime: number } {
+// Per-IP rate limits (fair distribution among ~10 users)
+const IP_LIMITS = {
+  minute: { windowMs: 60_000, max: 3 },       // 3/min per user
+  hour:   { windowMs: 3_600_000, max: 15 },   // 15/hr per user
+  day:    { windowMs: 86_400_000, max: 230 }, // 230/day per user
+};
+
+const globalRateMaps = {
+  minute: new Map<string, RateLimitEntry>(),
+  hour:   new Map<string, RateLimitEntry>(),
+  day:    new Map<string, RateLimitEntry>(),
+};
+
+const ipRateMaps = {
+  minute: new Map<string, RateLimitEntry>(),
+  hour:   new Map<string, RateLimitEntry>(),
+  day:    new Map<string, RateLimitEntry>(),
+};
+
+function checkWindow(
+  map: Map<string, RateLimitEntry>,
+  key: string,
+  windowMs: number,
+  max: number
+): { allowed: boolean; remaining: number; resetTime: number } {
   const now = Date.now();
-  const entry = rateLimitMap.get(ip);
+  const entry = map.get(key);
 
   // Clean up expired entries periodically (prevent memory leak)
-  if (rateLimitMap.size > 1000) {
-    rateLimitMap.forEach((val, key) => {
-      if (val.resetTime <= now) {
-        rateLimitMap.delete(key);
-      }
-    });
+  if (map.size > 500) {
+    for (const [k, val] of map) {
+      if (val.resetTime <= now) map.delete(k);
+    }
   }
 
   if (!entry || entry.resetTime <= now) {
-    // New window or expired window
-    const newEntry: RateLimitEntry = {
-      count: 1,
-      resetTime: now + RATE_LIMIT_WINDOW_MS,
-    };
-    rateLimitMap.set(ip, newEntry);
-    return { allowed: true, remaining: RATE_LIMIT_MAX - 1, resetTime: newEntry.resetTime };
+    const newEntry: RateLimitEntry = { count: 1, resetTime: now + windowMs };
+    map.set(key, newEntry);
+    return { allowed: true, remaining: max - 1, resetTime: newEntry.resetTime };
   }
 
-  if (entry.count >= RATE_LIMIT_MAX) {
-    // Limit exceeded
+  if (entry.count >= max) {
     return { allowed: false, remaining: 0, resetTime: entry.resetTime };
   }
 
-  // Increment count within current window
   entry.count++;
-  return { allowed: true, remaining: RATE_LIMIT_MAX - entry.count, resetTime: entry.resetTime };
+  return { allowed: true, remaining: max - entry.count, resetTime: entry.resetTime };
+}
+
+function checkDualRateLimit(ip: string): {
+  allowed: boolean;
+  reason?: string;
+  retryAfterMs: number;
+  globalRemaining: { minute: number; hour: number; day: number };
+  ipRemaining: { minute: number; hour: number; day: number };
+} {
+  // Check global limits first (most constraining for multi-user)
+  const gMin = checkWindow(globalRateMaps.minute, 'global', GLOBAL_LIMITS.minute.windowMs, GLOBAL_LIMITS.minute.max);
+  const gHr  = checkWindow(globalRateMaps.hour,   'global', GLOBAL_LIMITS.hour.windowMs,   GLOBAL_LIMITS.hour.max);
+  const gDay = checkWindow(globalRateMaps.day,    'global', GLOBAL_LIMITS.day.windowMs,    GLOBAL_LIMITS.day.max);
+
+  if (!gMin.allowed) return { allowed: false, reason: 'quota_minute', retryAfterMs: gMin.resetTime - Date.now(), globalRemaining: { minute: 0, hour: gHr.remaining, day: gDay.remaining }, ipRemaining: { minute: 0, hour: 0, day: 0 } };
+  if (!gHr.allowed)  return { allowed: false, reason: 'quota_hour',   retryAfterMs: gHr.resetTime - Date.now(),  globalRemaining: { minute: gMin.remaining, hour: 0, day: gDay.remaining }, ipRemaining: { minute: 0, hour: 0, day: 0 } };
+  if (!gDay.allowed) return { allowed: false, reason: 'quota_day',    retryAfterMs: gDay.resetTime - Date.now(), globalRemaining: { minute: gMin.remaining, hour: gHr.remaining, day: 0 }, ipRemaining: { minute: 0, hour: 0, day: 0 } };
+
+  // Check per-IP limits (fair distribution)
+  const iMin = checkWindow(ipRateMaps.minute, ip, IP_LIMITS.minute.windowMs, IP_LIMITS.minute.max);
+  const iHr  = checkWindow(ipRateMaps.hour,   ip, IP_LIMITS.hour.windowMs,   IP_LIMITS.hour.max);
+  const iDay = checkWindow(ipRateMaps.day,    ip, IP_LIMITS.day.windowMs,    IP_LIMITS.day.max);
+
+  if (!iMin.allowed) return { allowed: false, reason: 'user_minute', retryAfterMs: iMin.resetTime - Date.now(), globalRemaining: { minute: gMin.remaining, hour: gHr.remaining, day: gDay.remaining }, ipRemaining: { minute: 0, hour: iHr.remaining, day: iDay.remaining } };
+  if (!iHr.allowed)  return { allowed: false, reason: 'user_hour',   retryAfterMs: iHr.resetTime - Date.now(),  globalRemaining: { minute: gMin.remaining, hour: gHr.remaining, day: gDay.remaining }, ipRemaining: { minute: iMin.remaining, hour: 0, day: iDay.remaining } };
+  if (!iDay.allowed) return { allowed: false, reason: 'user_day',    retryAfterMs: iDay.resetTime - Date.now(), globalRemaining: { minute: gMin.remaining, hour: gHr.remaining, day: gDay.remaining }, ipRemaining: { minute: iMin.remaining, hour: iHr.remaining, day: 0 } };
+
+  return {
+    allowed: true,
+    retryAfterMs: 0,
+    globalRemaining: { minute: gMin.remaining, hour: gHr.remaining, day: gDay.remaining },
+    ipRemaining: { minute: iMin.remaining, hour: iHr.remaining, day: iDay.remaining },
+  };
 }
 
 // ─── CORS Configuration ──────────────────────────────────────────────
@@ -142,22 +194,34 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // ─── Rate Limiting ──────────────────────────────────────────────────
+  // ─── Dual-Layer Rate Limiting (Global Quota + Per-IP Fairness) ────────
   const clientIp = req.headers['x-forwarded-for'] as string || req.headers['x-real-ip'] as string || 'unknown';
-  // x-forwarded-for may contain multiple IPs; use the first (client) one
   const ip = clientIp.split(',')[0].trim();
-  const rateResult = checkRateLimit(ip);
+  const rateResult = checkDualRateLimit(ip);
 
   // Set rate limit headers for client awareness
-  res.setHeader('X-RateLimit-Limit', RATE_LIMIT_MAX.toString());
-  res.setHeader('X-RateLimit-Remaining', rateResult.remaining.toString());
-  res.setHeader('X-RateLimit-Reset', rateResult.resetTime.toString());
+  res.setHeader('X-RateLimit-Global-Minute', rateResult.globalRemaining.minute.toString());
+  res.setHeader('X-RateLimit-Global-Hour', rateResult.globalRemaining.hour.toString());
+  res.setHeader('X-RateLimit-Global-Day', rateResult.globalRemaining.day.toString());
+  res.setHeader('X-RateLimit-IP-Minute', rateResult.ipRemaining.minute.toString());
+  res.setHeader('X-RateLimit-IP-Hour', rateResult.ipRemaining.hour.toString());
+  res.setHeader('X-RateLimit-IP-Day', rateResult.ipRemaining.day.toString());
 
   if (!rateResult.allowed) {
-    res.setHeader('Retry-After', Math.ceil((rateResult.resetTime - Date.now()) / 1000).toString());
+    const retryAfterSec = Math.ceil(rateResult.retryAfterMs / 1000);
+    res.setHeader('Retry-After', retryAfterSec.toString());
+    const reasonMessages: Record<string, string> = {
+      quota_minute: 'Kuota server habis untuk menit ini. Tunggu sebentar ya!',
+      quota_hour:   'Kuota server habis untuk jam ini. Coba lagi nanti!',
+      quota_day:    'Kuota server habis untuk hari ini. Coba lagi besok!',
+      user_minute:  'Kamu terlalu banyak bertanya. Tunggu sebentar ya!',
+      user_hour:    'Kamu sudah banyak bertanya jam ini. Coba lagi nanti!',
+      user_day:     'Kamu sudah mencapai batas harian. Coba lagi besok!',
+    };
     return res.status(429).json({
-      error: 'Terlalu banyak request. Tunggu sebentar ya!',
-      retryAfter: Math.ceil((rateResult.resetTime - Date.now()) / 1000),
+      error: reasonMessages[rateResult.reason || 'quota_minute'] || 'Terlalu banyak request. Tunggu sebentar ya!',
+      retryAfter: retryAfterSec,
+      reason: rateResult.reason,
     });
   }
 
@@ -168,8 +232,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: 'Format request tidak valid — messages harus array' });
   }
 
-  if (messages.length > 10) {
-    return res.status(400).json({ error: 'Maksimal 10 pesan per request' });
+  if (messages.length > 6) {
+    return res.status(400).json({ error: 'Maksimal 6 pesan per request (kuota terbatas)' });
   }
 
   for (const msg of messages) {
@@ -206,8 +270,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       { role: 'system', content: ACTIVE_LEARNING_PROMPT },
     ];
 
-    // Add conversation history (last 5 messages for context)
-    const recentMessages = messages.length > 5 ? messages.slice(-5) : messages;
+    // Add conversation history (last 3 messages for context — token conservation)
+    const recentMessages = messages.length > 3 ? messages.slice(-3) : messages;
     for (const msg of recentMessages) {
       if (msg.role === 'user') {
         apiMessages.push({ role: 'user', content: msg.content });
@@ -220,13 +284,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       messages: apiMessages,
       model: MODEL,
       stream: false,
-      max_completion_tokens: 32768,
+      max_completion_tokens: 2048,
       temperature: 0.7,
       top_p: 1,
-    });
+    }) as any;
 
     // Extract the response content
-    const content = chatCompletion.choices[0]?.message?.content;
+    const content = (chatCompletion as any).choices[0]?.message?.content;
 
     if (!content) {
       throw new Error('Empty response from Cerebras API');

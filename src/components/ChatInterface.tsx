@@ -109,11 +109,13 @@ export default function ChatInterface() {
     setIsLoading(true);
 
     try {
+      // Only send last 3 messages + current to conserve API token quota
+      const recentHistory = messages.slice(-3);
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          messages: [...messages, userMessage].map(m => ({
+          messages: [...recentHistory, userMessage].map(m => ({
             role: m.role,
             content: m.content
           }))
@@ -122,7 +124,8 @@ export default function ChatInterface() {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.details || 'Gagal terhubung ke Nalar.ai. Coba beberapa saat lagi.');
+        // Use the user-friendly error message from backend (Indonesian)
+        throw new Error(errorData.error || 'Gagal terhubung ke Nalar.ai. Coba beberapa saat lagi.');
       }
       
       const data = await response.json();
