@@ -54,17 +54,9 @@ function getClient(): InstanceType<typeof Cerebras> {
   return _client;
 }
 
-// ─── Model Alternation ────────────────────────────────────────────────
-// Alternate between two models to distribute load and avoid rate limits.
-// Uses a counter that persists within a warm serverless instance.
-const MODELS = ['llama3.1-8b', 'gpt-oss-120b'];
-let modelIndex = 0;
-
-function getNextModel(): string {
-  const model = MODELS[modelIndex % MODELS.length];
-  modelIndex++;
-  return model;
-}
+// ─── Model Configuration ────────────────────────────────────────────────
+// Use gpt-oss-120b as the sole model for higher quality responses.
+const MODEL = 'gpt-oss-120b';
 
 // ─── In-Memory Rate Limiter ──────────────────────────────────────────
 // NOTE: This is a simple in-memory rate limiter for Vercel serverless functions.
@@ -224,12 +216,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    // Select model using round-robin alternation
-    const model = getNextModel();
-
     const chatCompletion = await getClient().chat.completions.create({
       messages: apiMessages,
-      model: model,
+      model: MODEL,
       stream: false,
       max_completion_tokens: 32768,
       temperature: 0.7,
