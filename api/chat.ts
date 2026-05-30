@@ -227,9 +227,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Select model using round-robin alternation
     const model = getNextModel();
 
-    // Add a 4-second delay before calling the API to avoid too-fast responses
-    await new Promise(resolve => setTimeout(resolve, 4000));
-
     const chatCompletion = await getClient().chat.completions.create({
       messages: apiMessages,
       model: model,

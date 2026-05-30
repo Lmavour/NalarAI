@@ -56,14 +56,17 @@
     <link rel="icon" type="image/jpeg" href="/nalarailogo.jpg" />
     <link rel="apple-touch-icon" href="/nalarailogo.jpg" />
 
-    <!-- Preload critical assets for performance -->
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" as="style" />
-    <link rel="preload" href="/nalarailogo.jpg" as="image" />
-
-    <!-- Font Preconnect & Loading -->
+    <!-- Core Web Vitals & Performance Optimizations -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" />
+    
+    <!-- High-Performance Non-blocking Font Loading -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'" />
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" />
+    </noscript>
 
     <!-- JSON-LD Structured Data: WebPage -->
     <script type="application/ld+json">
@@ -108,6 +111,12 @@
     </script>
   </head>
   <body>
+    <!-- Fallback for non-JS browsers to improve UX and search engine crawlability -->
+    <noscript>
+      <div style="padding: 20px; text-align: center; font-family: 'Plus Jakarta Sans', sans-serif; background-color: #FFF5F5; color: #C53030; border-bottom: 2px solid #FEB2B2; font-weight: bold;">
+        ⚠️ JavaScript Dinonaktifkan: Nalar.ai memerlukan JavaScript aktif di browser Anda untuk menjalankan simulasi tutor AI dan tantangan interaktif. Silakan aktifkan JavaScript untuk melanjutkan.
+      </div>
+    </noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

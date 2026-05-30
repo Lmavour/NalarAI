@@ -370,20 +370,61 @@ export default function ChatInterface() {
                 </div>
               )}
               {isLoading && (
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="flex justify-start items-center gap-3 mt-4 mb-6"
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="flex justify-start items-start gap-3 mt-4 mb-6"
                   aria-label="AI sedang berpikir"
                   role="status"
                 >
-                  <div className="ai-bubble p-3 px-5 flex items-center gap-3">
-                    <div className="flex gap-1">
-                      <motion.div animate={{ opacity: [1, 0.4, 1] }} transition={{ repeat: Infinity, duration: 1 }} className="w-2 h-2 rounded-full bg-brand-primary" aria-hidden="true" />
-                      <motion.div animate={{ opacity: [1, 0.4, 1] }} transition={{ repeat: Infinity, duration: 1, delay: 0.2 }} className="w-2 h-2 rounded-full bg-brand-primary" aria-hidden="true" />
-                      <motion.div animate={{ opacity: [1, 0.4, 1] }} transition={{ repeat: Infinity, duration: 1, delay: 0.4 }} className="w-2 h-2 rounded-full bg-brand-primary" aria-hidden="true" />
+                  <motion.img
+                    src="/nalarailogo.jpg"
+                    alt=""
+                    className="w-8 h-8 rounded-xl object-cover border-2 border-white shadow-sm flex-shrink-0"
+                    animate={{ scale: [1, 1.05, 1] }}
+                    transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                    aria-hidden="true"
+                  />
+                  <div className="ai-bubble p-3 px-5 flex flex-col items-start gap-2">
+                    <div className="flex items-center gap-2">
+                      <div className="flex gap-1.5">
+                        <motion.div
+                          animate={{ y: [0, -6, 0], scale: [1, 1.2, 1] }}
+                          transition={{ repeat: Infinity, duration: 0.6, ease: "easeOut" }}
+                          className="w-2.5 h-2.5 rounded-full bg-brand-primary"
+                          aria-hidden="true"
+                        />
+                        <motion.div
+                          animate={{ y: [0, -6, 0], scale: [1, 1.2, 1] }}
+                          transition={{ repeat: Infinity, duration: 0.6, delay: 0.15, ease: "easeOut" }}
+                          className="w-2.5 h-2.5 rounded-full bg-brand-primary"
+                          aria-hidden="true"
+                        />
+                        <motion.div
+                          animate={{ y: [0, -6, 0], scale: [1, 1.2, 1] }}
+                          transition={{ repeat: Infinity, duration: 0.6, delay: 0.3, ease: "easeOut" }}
+                          className="w-2.5 h-2.5 rounded-full bg-brand-primary"
+                          aria-hidden="true"
+                        />
+                      </div>
+                      <motion.span
+                        className="text-xs font-bold text-slate-500"
+                        animate={{ opacity: [1, 0.5, 1] }}
+                        transition={{ repeat: Infinity, duration: 1.5 }}
+                      >
+                        Nalar.ai sedang berpikir...
+                      </motion.span>
                     </div>
-                    <span className="text-xs font-bold text-slate-500">Nalar.ai sedang berpikir...</span>
+                    <motion.div
+                      className="flex items-center gap-1.5 text-[10px] text-slate-400 font-semibold"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 1.5 }}
+                    >
+                      <Sparkles className="w-3 h-3 text-brand-primary" aria-hidden="true" />
+                      <span>Menyiapkan tantangan interaktif untukmu</span>
+                    </motion.div>
                   </div>
                 </motion.div>
               )}
