@@ -66,7 +66,7 @@ const corsOptions = {
   optionsSuccessStatus: 204,
 };
 
-app.use(cors(corsOptions));
+app.use('/api/chat', cors(corsOptions));
 
 // 2. Helmet — set security-related HTTP headers
 app.use(helmet({
@@ -78,7 +78,13 @@ app.use(helmet({
         : ["'self'", "'unsafe-inline'"],  // Vite HMR needs unsafe-inline in dev
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       imgSrc: ["'self'", "data:", "https://nalar-ai-tau.vercel.app", "https://nalar-ai.web.id"],
-      connectSrc: ["'self'", "https://nalar-ai-tau.vercel.app", "https://nalar-ai.web.id"],
+      connectSrc: [
+        "'self'",
+        "https://nalar-ai-tau.vercel.app",
+        "https://nalar-ai.web.id",
+        "https://nekolabs.my.id",
+        ...(process.env.NODE_ENV === 'production' ? [] : ["ws://localhost:*"]),
+      ],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       mediaSrc: ["'self'"],
       objectSrc: ["'none'"],
@@ -277,7 +283,10 @@ app.get('/health', (req, res) => {
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: {
+        middlewareMode: true,
+        hmr: process.env.DISABLE_HMR !== 'true',
+      },
       appType: 'mpa',  // Multi-page app — Vite handles HTML routing automatically
     });
     app.use(vite.middlewares);

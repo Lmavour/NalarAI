@@ -7,8 +7,8 @@ export default defineConfig(({mode}) => {
   const env = loadEnv(mode, '.', '');
   return {
     plugins: [react(), tailwindcss()],
-    // SECURITY: No API keys are injected into the client bundle.
-    // All AI API calls are proxied through the Express server (server.ts).
+    // No API keys are injected into the client bundle. Course generation uses
+    // the public CloudAI endpoint through a standard browser fetch.
     define: {},
     resolve: {
       alias: {

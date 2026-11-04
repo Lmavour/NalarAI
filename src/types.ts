@@ -10,3 +10,15 @@ export interface ChatState {
   isLoading: boolean;
   error: string | null;
 }
+
+export interface CourseQuestion {
+  question: string;
+  options: string[];
+  correctAnswer: string;
+  explanation: string;
+}
+
+export interface CourseData {
+  material: string[];
+  quiz: CourseQuestion[];
+}

@@ -3,13 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import ChatInterface from './components/ChatInterface';
+import MicroCourse from './components/MicroCourse';
 
 export default function App() {
-  return (
-    <div className="min-h-screen">
-      <ChatInterface />
-    </div>
-  );
+  return <MicroCourse />;
 }
 
