@@ -1,0 +1,81 @@
+{
+  "characterId": "bima",
+  "characterName": "Bima",
+  "stickerCount": 12,
+  "format": "PNG (RGBA Transparent)",
+  "pipeline": "Node.js Sharp Lanczos3 2x + Flood-Fill Alpha",
+  "files": [
+    {
+      "filename": "bima_panicking.png",
+      "expression": "panicking",
+      "width": 592,
+      "height": 720
+    },
+    {
+      "filename": "bima_angry_typing.png",
+      "expression": "angry_typing",
+      "width": 650,
+      "height": 720
+    },
+    {
+      "filename": "bima_nervous.png",
+      "expression": "nervous",
+      "width": 622,
+      "height": 720
+    },
+    {
+      "filename": "bima_anxious.png",
+      "expression": "anxious",
+      "width": 506,
+      "height": 720
+    },
+    {
+      "filename": "bima_rushing.png",
+      "expression": "rushing",
+      "width": 543,
+      "height": 720
+    },
+    {
+      "filename": "bima_relieved.png",
+      "expression": "relieved",
+      "width": 587,
+      "height": 720
+    },
+    {
+      "filename": "bima_studying.png",
+      "expression": "studying",
+      "width": 569,
+      "height": 720
+    },
+    {
+      "filename": "bima_focused.png",
+      "expression": "focused",
+      "width": 720,
+      "height": 692
+    },
+    {
+      "filename": "bima_confused.png",
+      "expression": "confused",
+      "width": 720,
+      "height": 644
+    },
+    {
+      "filename": "bima_celebrating.png",
+      "expression": "celebrating",
+      "width": 720,
+      "height": 601
+    },
+    {
+      "filename": "bima_stressed.png",
+      "expression": "stressed",
+      "width": 663,
+      "height": 720
+    },
+    {
+      "filename": "bima_crying.png",
+      "expression": "crying",
+      "width": 720,
+      "height": 646
+    }
+  ]
+}

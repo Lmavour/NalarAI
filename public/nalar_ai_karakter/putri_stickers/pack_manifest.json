@@ -1,0 +1,57 @@
+{
+  "characterId": "putri",
+  "characterName": "Putri",
+  "stickerCount": 8,
+  "format": "PNG (RGBA Transparent)",
+  "pipeline": "Node.js Sharp Lanczos3 2x + Flood-Fill Alpha",
+  "files": [
+    {
+      "filename": "putri_excited.png",
+      "expression": "excited",
+      "width": 556,
+      "height": 720
+    },
+    {
+      "filename": "putri_celebrating.png",
+      "expression": "celebrating",
+      "width": 517,
+      "height": 720
+    },
+    {
+      "filename": "putri_happy_pointing.png",
+      "expression": "happy_pointing",
+      "width": 650,
+      "height": 720
+    },
+    {
+      "filename": "putri_confused.png",
+      "expression": "confused",
+      "width": 629,
+      "height": 720
+    },
+    {
+      "filename": "putri_sleepy.png",
+      "expression": "sleepy",
+      "width": 524,
+      "height": 720
+    },
+    {
+      "filename": "putri_laughing_crying.png",
+      "expression": "laughing_crying",
+      "width": 522,
+      "height": 720
+    },
+    {
+      "filename": "putri_thumbs_up.png",
+      "expression": "thumbs_up",
+      "width": 591,
+      "height": 720
+    },
+    {
+      "filename": "putri_cheering.png",
+      "expression": "cheering",
+      "width": 624,
+      "height": 720
+    }
+  ]
+}

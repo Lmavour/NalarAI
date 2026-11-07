@@ -1,0 +1,81 @@
+{
+  "characterId": "mang_ujang",
+  "characterName": "Mang Ujang",
+  "stickerCount": 12,
+  "format": "PNG (RGBA Transparent)",
+  "pipeline": "Node.js Sharp Lanczos3 2x + Flood-Fill Alpha",
+  "files": [
+    {
+      "filename": "mang_ujang_waving.png",
+      "expression": "waving",
+      "width": 720,
+      "height": 702
+    },
+    {
+      "filename": "mang_ujang_happy_coffee.png",
+      "expression": "happy_coffee",
+      "width": 720,
+      "height": 674
+    },
+    {
+      "filename": "mang_ujang_laughing.png",
+      "expression": "laughing",
+      "width": 720,
+      "height": 680
+    },
+    {
+      "filename": "mang_ujang_worried.png",
+      "expression": "worried",
+      "width": 720,
+      "height": 693
+    },
+    {
+      "filename": "mang_ujang_thumbs_up.png",
+      "expression": "thumbs_up",
+      "width": 720,
+      "height": 627
+    },
+    {
+      "filename": "mang_ujang_coffee_break.png",
+      "expression": "coffee_break",
+      "width": 720,
+      "height": 647
+    },
+    {
+      "filename": "mang_ujang_sipping_coffee.png",
+      "expression": "sipping_coffee",
+      "width": 720,
+      "height": 618
+    },
+    {
+      "filename": "mang_ujang_confused.png",
+      "expression": "confused",
+      "width": 720,
+      "height": 645
+    },
+    {
+      "filename": "mang_ujang_shocked.png",
+      "expression": "shocked",
+      "width": 720,
+      "height": 641
+    },
+    {
+      "filename": "mang_ujang_explaining.png",
+      "expression": "explaining",
+      "width": 720,
+      "height": 581
+    },
+    {
+      "filename": "mang_ujang_greeting.png",
+      "expression": "greeting",
+      "width": 720,
+      "height": 625
+    },
+    {
+      "filename": "mang_ujang_thankful.png",
+      "expression": "thankful",
+      "width": 720,
+      "height": 647
+    }
+  ]
+}

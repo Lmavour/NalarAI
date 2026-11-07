@@ -1,0 +1,81 @@
+{
+  "characterId": "rara",
+  "characterName": "Rara",
+  "stickerCount": 12,
+  "format": "PNG (RGBA Transparent)",
+  "pipeline": "Node.js Sharp Lanczos3 2x + Flood-Fill Alpha",
+  "files": [
+    {
+      "filename": "rara_bored_boba.png",
+      "expression": "bored_boba",
+      "width": 527,
+      "height": 720
+    },
+    {
+      "filename": "rara_annoyed.png",
+      "expression": "annoyed",
+      "width": 456,
+      "height": 720
+    },
+    {
+      "filename": "rara_facepalm.png",
+      "expression": "facepalm",
+      "width": 685,
+      "height": 720
+    },
+    {
+      "filename": "rara_smirking.png",
+      "expression": "smirking",
+      "width": 708,
+      "height": 720
+    },
+    {
+      "filename": "rara_texting.png",
+      "expression": "texting",
+      "width": 530,
+      "height": 720
+    },
+    {
+      "filename": "rara_vibing.png",
+      "expression": "vibing",
+      "width": 488,
+      "height": 720
+    },
+    {
+      "filename": "rara_gasping.png",
+      "expression": "gasping",
+      "width": 550,
+      "height": 720
+    },
+    {
+      "filename": "rara_shocked.png",
+      "expression": "shocked",
+      "width": 581,
+      "height": 720
+    },
+    {
+      "filename": "rara_skeptical.png",
+      "expression": "skeptical",
+      "width": 549,
+      "height": 720
+    },
+    {
+      "filename": "rara_yawning.png",
+      "expression": "yawning",
+      "width": 720,
+      "height": 713
+    },
+    {
+      "filename": "rara_thumbs_down.png",
+      "expression": "thumbs_down",
+      "width": 720,
+      "height": 696
+    },
+    {
+      "filename": "rara_unamused.png",
+      "expression": "unamused",
+      "width": 639,
+      "height": 720
+    }
+  ]
+}

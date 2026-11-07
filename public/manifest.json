@@ -1,31 +1,45 @@
 {
-  "name": "Nalar.ai — Tutor AI Belajar Aktif",
-  "short_name": "Nalar.ai",
-  "description": "Tutor AI yang mendorong berpikir kritis melalui metode sokratik, tantangan interaktif, dan eksplorasi informasi.",
-  "start_url": "/",
+  "name": "NalarAI - Belajar Aktif Setiap Hari",
+  "short_name": "NalarAI",
+  "description": "Jalur belajar personal bertenaga AI dengan kuis, XP, streak, hearts, dan liga mingguan.",
+  "id": "/app",
+  "start_url": "/app?source=pwa",
   "scope": "/",
   "display": "standalone",
-  "orientation": "portrait-primary",
-  "background_color": "#FFFFFF",
-  "theme_color": "#58CC02",
-  "lang": "id",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#F7FBFF",
+  "theme_color": "#176BFF",
+  "lang": "id-ID",
   "dir": "ltr",
   "categories": ["education", "productivity"],
   "icons": [
     {
-      "src": "/nalarailogo.jpg",
+      "src": "/icon-192.png",
       "sizes": "192x192",
-      "type": "image/jpeg",
-      "purpose": "any maskable"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "/nalarailogo.jpg",
+      "src": "/icon-512.png",
       "sizes": "512x512",
-      "type": "image/jpeg",
-      "purpose": "any maskable"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
-  "screenshots": [],
-  "prefer_related_applications": false,
-  "related_applications": []
+  "shortcuts": [
+    {
+      "name": "Lanjut belajar",
+      "short_name": "Jalur",
+      "url": "/app",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ],
+  "prefer_related_applications": false
 }

@@ -1,0 +1,81 @@
+{
+  "characterId": "gara",
+  "characterName": "Gara",
+  "stickerCount": 12,
+  "format": "PNG (RGBA Transparent)",
+  "pipeline": "Node.js Sharp Lanczos3 2x + Flood-Fill Alpha",
+  "files": [
+    {
+      "filename": "gara_happy_satay.png",
+      "expression": "happy_satay",
+      "width": 652,
+      "height": 720
+    },
+    {
+      "filename": "gara_angry.png",
+      "expression": "angry",
+      "width": 720,
+      "height": 693
+    },
+    {
+      "filename": "gara_crying.png",
+      "expression": "crying",
+      "width": 688,
+      "height": 720
+    },
+    {
+      "filename": "gara_sad.png",
+      "expression": "sad",
+      "width": 641,
+      "height": 720
+    },
+    {
+      "filename": "gara_confused.png",
+      "expression": "confused",
+      "width": 676,
+      "height": 720
+    },
+    {
+      "filename": "gara_shocked.png",
+      "expression": "shocked",
+      "width": 720,
+      "height": 702
+    },
+    {
+      "filename": "gara_cheering.png",
+      "expression": "cheering",
+      "width": 672,
+      "height": 720
+    },
+    {
+      "filename": "gara_celebrating.png",
+      "expression": "celebrating",
+      "width": 720,
+      "height": 624
+    },
+    {
+      "filename": "gara_laughing.png",
+      "expression": "laughing",
+      "width": 720,
+      "height": 685
+    },
+    {
+      "filename": "gara_double_thumbs_up.png",
+      "expression": "double_thumbs_up",
+      "width": 720,
+      "height": 660
+    },
+    {
+      "filename": "gara_thumbs_up.png",
+      "expression": "thumbs_up",
+      "width": 709,
+      "height": 720
+    },
+    {
+      "filename": "gara_sleepy.png",
+      "expression": "sleepy",
+      "width": 720,
+      "height": 671
+    }
+  ]
+}

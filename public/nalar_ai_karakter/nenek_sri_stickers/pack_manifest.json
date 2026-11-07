@@ -1,0 +1,81 @@
+{
+  "characterId": "nenek_sri",
+  "characterName": "Nenek Sri",
+  "stickerCount": 12,
+  "format": "PNG (RGBA Transparent)",
+  "pipeline": "Node.js Sharp Lanczos3 2x + Flood-Fill Alpha",
+  "files": [
+    {
+      "filename": "nenek_sri_happy_waving.png",
+      "expression": "happy_waving",
+      "width": 720,
+      "height": 685
+    },
+    {
+      "filename": "nenek_sri_offering_jamu.png",
+      "expression": "offering_jamu",
+      "width": 720,
+      "height": 695
+    },
+    {
+      "filename": "nenek_sri_advising.png",
+      "expression": "advising",
+      "width": 720,
+      "height": 681
+    },
+    {
+      "filename": "nenek_sri_curious.png",
+      "expression": "curious",
+      "width": 720,
+      "height": 668
+    },
+    {
+      "filename": "nenek_sri_giggling.png",
+      "expression": "giggling",
+      "width": 720,
+      "height": 634
+    },
+    {
+      "filename": "nenek_sri_tired.png",
+      "expression": "tired",
+      "width": 720,
+      "height": 677
+    },
+    {
+      "filename": "nenek_sri_pondering.png",
+      "expression": "pondering",
+      "width": 656,
+      "height": 720
+    },
+    {
+      "filename": "nenek_sri_thinking.png",
+      "expression": "thinking",
+      "width": 720,
+      "height": 720
+    },
+    {
+      "filename": "nenek_sri_shocked.png",
+      "expression": "shocked",
+      "width": 720,
+      "height": 644
+    },
+    {
+      "filename": "nenek_sri_grateful.png",
+      "expression": "grateful",
+      "width": 654,
+      "height": 720
+    },
+    {
+      "filename": "nenek_sri_blessed.png",
+      "expression": "blessed",
+      "width": 720,
+      "height": 613
+    },
+    {
+      "filename": "nenek_sri_cheering.png",
+      "expression": "cheering",
+      "width": 720,
+      "height": 607
+    }
+  ]
+}
