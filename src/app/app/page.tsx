@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { DatabaseUnavailable } from "@/components/database-unavailable";
 import { LearningShell } from "@/components/learning/learning-shell";
+import { isDatabaseUnavailable } from "@/lib/db-connection";
 import { getAuthenticatedDashboard } from "@/lib/dashboard";
 
 export const metadata: Metadata = {
@@ -12,7 +14,16 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function CoreAppPage() {
-  const dashboard = await getAuthenticatedDashboard();
+  let dashboard;
+  try {
+    dashboard = await getAuthenticatedDashboard();
+  } catch (error) {
+    if (isDatabaseUnavailable(error)) {
+      console.warn("Dashboard database is unavailable:", { name: error.name });
+      return <DatabaseUnavailable />;
+    }
+    throw error;
+  }
   if (!dashboard) redirect("/auth?mode=login&next=/app");
 
   return <LearningShell initialDashboard={dashboard} />;

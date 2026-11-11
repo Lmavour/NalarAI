@@ -1,21 +1,14 @@
 import "server-only";
 import { randomUUID } from "node:crypto";
-import { getGeminiConfig } from "@/lib/env";
-import { AiServiceError, requestGeminiLesson } from "@/lib/gemini";
-import { buildLessonPrompt, LESSON_SYSTEM_PROMPT, parseLessonContent } from "@/lib/lesson-content";
+import { getAiProvidersConfig } from "@/lib/env";
+import { AiServiceError } from "@/lib/ai-error";
+import { generateWithProviders } from "@/lib/ai-router";
+import { getGroqTokenLedger } from "@/lib/groq-budget-store";
 
 export { AiServiceError };
 
 export async function generateLesson(topic: string, stageTitle: string) {
-  const { apiKey, model } = getGeminiConfig();
-  const reply = await requestGeminiLesson({ apiKey, model, prompt: buildLessonPrompt(topic, stageTitle), systemInstruction: LESSON_SYSTEM_PROMPT });
-
-  let generated: ReturnType<typeof parseLessonContent>;
-  try {
-    generated = parseLessonContent(reply);
-  } catch {
-    throw new AiServiceError("AI lesson JSON failed validation", "invalid-response");
-  }
+  const { content: generated, generation } = await generateWithProviders(topic, stageTitle, getAiProvidersConfig(), { getLedger: getGroqTokenLedger });
 
   const questions = generated.quiz.map((question) => {
     const questionId = randomUUID();
@@ -37,5 +30,6 @@ export async function generateLesson(topic: string, stageTitle: string) {
     material: generated.material.map((item) => ({ id: randomUUID(), ...item })),
     questions: questions.map((item) => item.publicQuestion),
     answerKey: questions.map((item) => item.answer),
+    generation,
   };
 }

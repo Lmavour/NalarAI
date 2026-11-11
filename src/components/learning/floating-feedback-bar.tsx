@@ -5,6 +5,7 @@ import { ArrowRight, CircleCheckBig, XCircle, Zap } from "lucide-react";
 import { useEffect, useId, useRef } from "react";
 import { useReducedMotionPreference } from "@/lib/use-reduced-motion";
 import type { AnswerResult } from "@/types/learning";
+import { SourceLinks } from "@/components/learning/source-links";
 
 export type FloatingFeedbackBarProps = {
   feedback: AnswerResult;
@@ -39,9 +40,12 @@ export function FloatingFeedbackBar({ feedback, onContinue }: FloatingFeedbackBa
         </h2>
         {xp !== undefined ? (
           <span data-awarded-xp={xp} className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-xs font-black text-amber-900"><Zap className="size-3.5 fill-amber-400 text-amber-500" aria-hidden="true" /> +{xp} XP level</span>
-        ) : <span className="text-[10px] font-bold text-slate-600">XP dihitung di akhir level</span>}
+        ) : null}
       </div>
-      <p tabIndex={0} aria-label="Penjelasan jawaban" className="min-h-0 overflow-y-auto overscroll-contain text-sm leading-6 text-slate-700 [overflow-wrap:anywhere]">{feedback.explanation}</p>
+      <div className="min-h-0 overflow-y-auto overscroll-contain">
+        <p tabIndex={0} aria-label="Penjelasan jawaban" className="text-sm leading-6 text-slate-700 [overflow-wrap:anywhere]">{feedback.explanation}</p>
+        <SourceLinks refs={feedback.sourceRefs} className="mt-2" />
+      </div>
       <button ref={continueRef} type="button" onClick={onContinue} className="button-primary mt-1 w-full shrink-0 rounded-full md:ml-auto md:w-auto md:min-w-36">
         {feedback.completed ? "Lihat hasil" : "Lanjut"} <ArrowRight className="size-4 shrink-0" aria-hidden="true" />
       </button>

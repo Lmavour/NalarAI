@@ -21,6 +21,7 @@ import { HintSheet } from "@/components/learning/hint-sheet";
 import { LearnLayout, type LearnTab } from "@/components/learning/learn-layout";
 import { MascotCompanion, type CompanionState } from "@/components/learning/mascot-companion";
 import { QuestionCard } from "@/components/learning/question-card";
+import { SourceLinks } from "@/components/learning/source-links";
 import type { AnswerResult, DashboardData, DashboardProgress, DashboardStats, LessonSessionDto } from "@/types/learning";
 
 type LessonPlayerProps = {
@@ -31,6 +32,16 @@ type LessonPlayerProps = {
   onNavigate: (tab: LearnTab) => void;
   onCompleted: (stats: DashboardStats, progress: DashboardProgress) => void;
 };
+
+type AnswerProblem = { error?: string; code?: string };
+
+function answerProblem(status: number, data: AnswerProblem | null) {
+  if (data?.code === "LESSON_EXPIRED") return "Pelajaran berakhir. Buat level baru untuk melanjutkan.";
+  if (["NOT_FOUND", "DOCUMENT_NOT_FOUND"].includes(data?.code ?? "")) return "Pelajaran ini sudah tidak tersedia.";
+  if (status === 429) return "Terlalu banyak percobaan. Tunggu sebentar lalu coba lagi.";
+  if (status === 401) return "Sesi berakhir. Masuk kembali untuk melanjutkan.";
+  return "Jawaban belum dapat diperiksa. Coba lagi.";
+}
 
 export function LessonLoading({ topic }: { topic: string }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -48,12 +59,11 @@ export function LessonLoading({ topic }: { topic: string }) {
   }, []);
 
   return (
-    <dialog ref={dialogRef} tabIndex={-1} onCancel={(event) => event.preventDefault()} className="app-dialog safe-x fixed inset-0 z-[90] m-0 flex h-dvh max-h-none w-full max-w-none overflow-y-auto border-0 bg-[#F7FBFF]/95 pb-[calc(24px+var(--safe-bottom))] pt-[calc(24px+var(--safe-top))] text-ink backdrop-blur-lg" aria-labelledby="lesson-loading-title" aria-describedby="lesson-loading-description">
+    <dialog ref={dialogRef} tabIndex={-1} onCancel={(event) => event.preventDefault()} className="app-dialog safe-x fixed inset-0 z-[90] m-0 flex h-dvh max-h-none w-full max-w-none overflow-y-auto border-0 bg-[#F7FBFF]/95 pb-[calc(24px+var(--safe-bottom))] pt-[calc(24px+var(--safe-top))] text-ink backdrop-blur-lg" aria-labelledby="lesson-loading-title">
       <div className="m-auto w-full min-w-0 max-w-md text-center">
         <div role="status" aria-live="polite">
-          <MascotCompanion character="mang_ujang" emotion="thinking" message="Santai dulu, satu level sedang diracik." eventKey="lesson-loading" context="loading" className="mx-auto max-w-xs" />
-          <h2 id="lesson-loading-title" className="mt-6 text-2xl font-[900] tracking-tight text-ink sm:text-3xl">Menyusun level belajarmu...</h2>
-          <p id="lesson-loading-description" className="mx-auto mt-3 max-w-sm text-sm leading-7 text-copy [overflow-wrap:anywhere]">Mang Ujang sedang meracik <strong className="text-sapphire">{topic}</strong> menjadi materi kecil dan pertanyaan yang tepat.</p>
+          <MascotCompanion character="mang_ujang" emotion="thinking" message="" eventKey="lesson-loading" context="loading" minimal className="mx-auto" />
+          <h2 id="lesson-loading-title" className="mt-4 text-2xl font-[900] tracking-tight text-ink [overflow-wrap:anywhere] sm:text-3xl">Menyiapkan {topic}...</h2>
           <div className="mx-auto mt-8 h-3 max-w-xs overflow-hidden rounded-full bg-sky">
             <div className="h-full w-2/3 animate-pulse rounded-full bg-cobalt" />
           </div>
@@ -144,13 +154,14 @@ export function LessonPlayer({ lesson, dashboard, initialCompletedStageIds, onCl
         },
         body: JSON.stringify({ questionId: question.id, optionId: selectedOptionId }),
       });
-      const data = (await response.json().catch(() => null)) as (AnswerResult & { error?: string }) | null;
+      const data = (await response.json().catch(() => null)) as (AnswerResult & AnswerProblem) | null;
       if (!response.ok || !data || data.questionId !== question.id || (data.completed && !data.award)) {
-        setError(data?.error ?? "Jawaban belum dapat diperiksa. Coba lagi.");
+        setError(answerProblem(response.status, data));
         return;
       }
 
       setFeedback(data);
+      if (data.submittedOptionId) setSelectedOptionId(data.submittedOptionId);
       if (!data.correct) setWrongAnswerCount((count) => count + 1);
       if (data.completed && data.award) {
         setAward(data.award);
@@ -162,7 +173,7 @@ export function LessonPlayer({ lesson, dashboard, initialCompletedStageIds, onCl
         onCompleted(data.award.stats, returnedProgress);
       }
     } catch {
-      setError("Koneksi terputus saat memeriksa jawaban. Pilihanmu tetap tersimpan di layar.");
+      setError("Koneksi terputus. Pilihanmu tetap tersimpan.");
     } finally {
       requestPending.current = false;
       setIsSubmitting(false);
@@ -178,7 +189,7 @@ export function LessonPlayer({ lesson, dashboard, initialCompletedStageIds, onCl
       return;
     }
     if (questionIndex === lesson.questions.length - 1) {
-      setError("Hasil level belum dikonfirmasi server. Tutup level dan coba kembali.");
+      setError("Hasil level belum siap. Tutup level dan coba kembali.");
       return;
     }
     advancedQuestionId.current = question.id;
@@ -193,24 +204,24 @@ export function LessonPlayer({ lesson, dashboard, initialCompletedStageIds, onCl
   let companion: CompanionState = {
     character: difficultModule && phase === "quiz" ? "bima" : "gara",
     emotion: phase === "material" ? "idle" : "thinking",
-    message: phase === "material" ? "Satu konsep dulu. Kita pahami pelan-pelan." : "Ambil waktu. Pilih yang paling masuk akal.",
+    message: phase === "material" ? "Pelajari satu konsep." : "Pilih jawabanmu.",
     eventKey: `${lesson.sessionId}:${phase}:${phase === "material" ? material?.id : question?.id}`,
     context: phase === "material" ? "flashcard" : "question",
   };
   if (isSubmitting) {
-    companion = { ...companion, character: "gara", emotion: "thinking", message: "Sebentar, kita periksa jawabanmu.", context: "checking", eventKey: `${question.id}:checking` };
+    companion = { ...companion, character: "gara", emotion: "thinking", message: "Memeriksa...", context: "checking", eventKey: `${question.id}:checking` };
   } else if (phase === "quiz" && feedback) {
     const needsReassurance = wrongAnswerCount >= 3 || difficultModule;
     companion = {
       character: feedback.correct ? "putri" : needsReassurance ? "bima" : "rara",
       emotion: feedback.correct ? "happy" : needsReassurance ? "shocked" : "crying",
-      message: feedback.correct ? "Nah, itu dia! Satu konsep lagi kamu kuasai." : needsReassurance ? "Tarik napas. Pecah konsepnya jadi langkah kecil." : "Belum pas. Kita baca alasannya, bukan asal gas.",
+      message: feedback.correct ? "Tepat!" : needsReassurance ? "Coba pecah konsepnya." : "Baca penjelasannya, lalu lanjut.",
       eventKey: `${question.id}:answered`,
       context: feedback.correct ? "answer-correct" : wrongAnswerCount >= 3 ? "repeated-wrong" : "answer-wrong",
       celebrate: feedback.correct,
     };
   } else if (phase === "complete") {
-    companion = { character: firstMasteryVictory ? "gara" : "putri", emotion: "happy", message: firstMasteryVictory ? "Satu jalur tuntas. Kamu sudah sejauh ini!" : "Level selesai. Rayakan langkah kecilmu!", eventKey: `${lesson.sessionId}:complete`, context: "lesson-complete", celebrate: true };
+    companion = { character: firstMasteryVictory ? "gara" : "putri", emotion: "happy", message: firstMasteryVictory ? "Jalur selesai!" : "Level selesai!", eventKey: `${lesson.sessionId}:complete`, context: "lesson-complete", celebrate: true };
   }
 
   return (
@@ -218,7 +229,7 @@ export function LessonPlayer({ lesson, dashboard, initialCompletedStageIds, onCl
       <LearnLayout
         user={dashboard.user}
         stats={dashboard.stats}
-        activeTab="path"
+        activeTab={lesson.documentId ? "documents" : "path"}
         onNavigate={onNavigate}
         navigationDisabled={isSubmitting}
         contentRef={contentRef}
@@ -231,7 +242,10 @@ export function LessonPlayer({ lesson, dashboard, initialCompletedStageIds, onCl
             <div className="flex items-center justify-between gap-2 text-[11px] font-black"><span className="truncate text-sapphire">{phase === "material" ? "Materi" : phase === "quiz" ? `Soal ${questionIndex + 1}/${lesson.questions.length}` : "Level selesai"}</span><span className="text-slate-500">{progress}%</span></div>
             <div className="mt-2 h-2 overflow-hidden rounded-full bg-blue-100" role="progressbar" aria-label="Progres pelajaran" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress}><div className="h-full rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 transition-[width] duration-300" style={{ width: `${progress}%` }} /></div>
           </div>
-          <span className="flex shrink-0 items-center gap-1 rounded-full bg-rose-50 px-2.5 py-2 text-xs font-black text-rose-700 md:hidden" aria-label={`${dashboard.stats.hearts} hearts tersisa`}><Heart className="size-3.5 fill-rose-500 text-rose-500" aria-hidden="true" /> {dashboard.stats.hearts}</span>
+          <div data-mobile-lesson-companion className="relative -my-1 shrink-0 md:hidden">
+            <MascotCompanion {...companion} compact floating minimal />
+            <span className="absolute right-0 top-0 inline-flex h-5 min-w-5 items-center justify-center gap-0.5 rounded-full border-2 border-white bg-rose-500 px-1 text-[9px] font-black leading-none text-white shadow-sm" aria-label={`${dashboard.stats.hearts} hearts tersisa`}><Heart className="size-2.5 fill-white" aria-hidden="true" />{dashboard.stats.hearts}</span>
+          </div>
         </div>
         )}
         actions={(
@@ -246,7 +260,7 @@ export function LessonPlayer({ lesson, dashboard, initialCompletedStageIds, onCl
                 ) : phase === "quiz" ? (
                   <button type="button" onClick={checkAnswer} disabled={!selectedOptionId || isSubmitting} className="button-primary w-full" aria-busy={isSubmitting}>{isSubmitting ? <LoaderCircle className="size-4 animate-spin" aria-hidden="true" /> : null}{isSubmitting ? "Memeriksa..." : "Periksa jawaban"}</button>
                 ) : (
-                  <button type="button" onClick={onClose} className="button-primary w-full">Kembali ke jalur <ArrowRight className="size-4 shrink-0" aria-hidden="true" /></button>
+                  <button type="button" onClick={onClose} className="button-primary w-full">{lesson.documentId ? "Kembali ke materi" : "Kembali ke jalur"} <ArrowRight className="size-4 shrink-0" aria-hidden="true" /></button>
                 )}
               </div>
             )}
@@ -259,9 +273,9 @@ export function LessonPlayer({ lesson, dashboard, initialCompletedStageIds, onCl
               <span className="grid size-13 place-items-center rounded-[18px] bg-ice text-cobalt"><BookOpenCheck className="size-6" /></span>
               <span className="flex items-center gap-2 rounded-full bg-canvas px-3 py-2 text-xs font-[900] text-muted"><Clock3 className="size-4" /> {lesson.estimatedMinutes} menit</span>
             </div>
-            <p className="mt-6 text-[11px] font-extrabold uppercase tracking-[0.12em] text-cobalt">Kartu {materialIndex + 1} dari {lesson.material.length}</p>
-            <h1 ref={headingRef} tabIndex={-1} className="mt-2 text-xl font-black leading-snug tracking-[-0.025em] text-ink [overflow-wrap:anywhere] lg:text-2xl">{material.title}</h1>
+            <h1 ref={headingRef} tabIndex={-1} className="mt-6 text-xl font-black leading-snug tracking-[-0.025em] text-ink [overflow-wrap:anywhere] lg:text-2xl">{material.title}</h1>
             <p className="mt-5 whitespace-pre-line text-sm leading-7 text-copy [overflow-wrap:anywhere] lg:text-base">{material.content}</p>
+            <SourceLinks refs={material.sourceRefs} className="mt-4" />
             <div className="mt-6 flex min-w-0 items-start gap-3 rounded-2xl border border-blue-200 bg-ice p-4">
               <Lightbulb className="mt-0.5 size-5 shrink-0 text-cobalt" />
               <div className="min-w-0"><p className="text-[11px] font-extrabold uppercase tracking-wider text-cobalt">Ingat ini</p><p className="mt-1 text-sm font-extrabold leading-6 text-sapphire [overflow-wrap:anywhere] sm:text-base">{material.keyTakeaway}</p></div>
@@ -272,8 +286,6 @@ export function LessonPlayer({ lesson, dashboard, initialCompletedStageIds, onCl
         {phase === "quiz" && question ? (
           <QuestionCard
             question={question}
-            number={questionIndex + 1}
-            total={lesson.questions.length}
             selectedOptionId={selectedOptionId}
             onSelect={setSelectedOptionId}
             onHint={() => setHintOpen(true)}
@@ -288,18 +300,18 @@ export function LessonPlayer({ lesson, dashboard, initialCompletedStageIds, onCl
         {phase === "complete" ? (
           <section className="learn-card w-full min-w-0 p-5 text-center lg:p-8">
             <span className="mx-auto grid size-16 place-items-center rounded-full bg-emerald-50 text-emerald-600"><CircleCheckBig className="size-8" aria-hidden="true" /></span>
-            <p className="mt-5 text-xs font-[900] uppercase tracking-[0.16em] text-cobalt">Level selesai</p>
-            <h1 ref={headingRef} tabIndex={-1} className="mt-2 text-2xl font-black leading-tight tracking-[-0.035em] text-ink lg:text-3xl">Kemenangan kecil, pemahaman besar.</h1>
-            <p className="mt-4 text-sm leading-7 text-copy [overflow-wrap:anywhere] sm:text-base">Kamu telah menyelesaikan <strong className="text-sapphire">{lesson.title}</strong>. Jalur berikutnya sekarang terbuka.</p>
-            <div className="mt-8 grid grid-cols-2 gap-3">
+            <h1 ref={headingRef} tabIndex={-1} className="mt-5 text-2xl font-black leading-tight tracking-[-0.035em] text-ink lg:text-3xl">Level selesai</h1>
+            <p className="mt-2 text-sm font-bold text-copy [overflow-wrap:anywhere]">{lesson.title}</p>
+            <div className="mt-6 grid grid-cols-2 gap-3">
               <div className="rounded-[22px] border border-line bg-white p-5"><Zap className="mx-auto size-6 fill-reward text-reward" /><p className="mt-2 text-2xl font-[950] text-ink">+{award?.xpEarned ?? 0}</p><p className="text-xs font-bold text-muted">XP didapat</p></div>
               <div className="rounded-[22px] border border-line bg-white p-5"><CircleCheckBig className="mx-auto size-6 text-success" /><p className="mt-2 text-2xl font-[950] text-ink">{award?.score ?? 0}%</p><p className="text-xs font-bold text-muted">Ketepatan</p></div>
             </div>
+            {lesson.documentId ? <button type="button" onClick={() => onNavigate("review")} className="button-secondary mt-5 w-full">Buka kartu ulang</button> : null}
           </section>
         ) : null}
       </LearnLayout>
       <AnimatePresence>
-        {hintOpen ? <HintSheet key={question.id} questionId={question.id} material={lesson.material} character={dashboard.stats.streak >= 30 ? "nenek_sri" : "mang_ujang"} onClose={() => setHintOpen(false)} /> : null}
+        {hintOpen ? <HintSheet key={question.id} questionId={question.id} material={question.materialIndex === undefined ? lesson.material : lesson.material.filter((_item, index) => index === question.materialIndex)} character={dashboard.stats.streak >= 30 ? "nenek_sri" : "mang_ujang"} onClose={() => setHintOpen(false)} /> : null}
       </AnimatePresence>
     </dialog>
   );

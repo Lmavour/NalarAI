@@ -1,6 +1,5 @@
-import { BookOpenCheck, CalendarDays, Check, Clock3, Gem, ShieldCheck, Sparkles, Target, Trophy, Zap } from "lucide-react";
+import { BookOpenCheck, CalendarDays, Check, Clock3, Gem, Sparkles, Target, Trophy, Zap } from "lucide-react";
 import { CharacterAvatar } from "@/components/character-avatar";
-import { InstallAppButton } from "@/components/install-app-button";
 import type { DashboardData } from "@/types/learning";
 
 function buildActivity(activityDates: string[]) {
@@ -19,10 +18,10 @@ export function ProfileView({ dashboard }: { dashboard: DashboardData }) {
   const levelStart = Math.max(0, nextLevelXp - 500);
   const levelProgress = Math.min(100, ((dashboard.stats.xp - levelStart) / 500) * 100);
   const badges = [
-    { icon: Sparkles, title: "Langkah pertama", copy: "Level pertama selesai", unlocked: dashboard.stats.lessonsCompleted > 0, color: "bg-[#FFF4D6] text-[#986000]" },
-    { icon: Zap, title: "500 XP", copy: "Bangun momentum", unlocked: dashboard.stats.xp >= 500, color: "bg-ice text-cobalt" },
-    { icon: Trophy, title: "Streak 7", copy: "Belajar tujuh hari", unlocked: dashboard.stats.longestStreak >= 7, color: "bg-[#E7FAF5] text-success" },
-    { icon: Gem, title: "Diamond", copy: "Capai liga tertinggi", unlocked: dashboard.stats.league === "Diamond", color: "bg-[#F4EDFF] text-[#6D3FC0]" },
+    { icon: Sparkles, title: "Langkah pertama", unlocked: dashboard.stats.lessonsCompleted > 0, color: "bg-[#FFF4D6] text-[#986000]" },
+    { icon: Zap, title: "500 XP", unlocked: dashboard.stats.xp >= 500, color: "bg-ice text-cobalt" },
+    { icon: Trophy, title: "Streak 7", unlocked: dashboard.stats.longestStreak >= 7, color: "bg-[#E7FAF5] text-success" },
+    { icon: Gem, title: "Diamond", unlocked: dashboard.stats.league === "Diamond", color: "bg-[#F4EDFF] text-[#6D3FC0]" },
   ];
   const summary = [
     { icon: Target, label: "Topik aktif", value: dashboard.progress.topic, color: "text-success" },
@@ -40,12 +39,10 @@ export function ProfileView({ dashboard }: { dashboard: DashboardData }) {
             <div className="flex min-w-0 flex-col items-center gap-3 text-center sm:flex-row sm:gap-4 sm:text-left">
                <div className="shrink-0 rounded-full border-4 border-white bg-white p-1 shadow-soft"><CharacterAvatar character="gara" expression="happy" size="md" className="size-20" priority /></div>
               <div className="min-w-0">
-                <span className="inline-flex rounded-full bg-white px-3 py-1 text-[11px] font-extrabold text-cobalt">{dashboard.stats.league} scholar</span>
-                <h1 className="mt-2 text-2xl font-[900] tracking-[-0.035em] text-ink [overflow-wrap:anywhere] sm:text-3xl">{dashboard.user.displayName}</h1>
+                <h1 className="text-2xl font-[900] tracking-[-0.035em] text-ink [overflow-wrap:anywhere] sm:text-3xl">{dashboard.user.displayName}</h1>
                 <p className="mt-1 text-xs font-bold leading-5 text-copy [overflow-wrap:anywhere] sm:text-sm">{dashboard.user.email}</p>
               </div>
             </div>
-            <InstallAppButton className="shrink-0 sm:self-start" />
           </div>
 
           <div className="relative mt-6 grid min-w-0 grid-cols-2 gap-3">
@@ -68,7 +65,7 @@ export function ProfileView({ dashboard }: { dashboard: DashboardData }) {
           <div className="min-w-0 space-y-7 p-5 sm:p-7">
             <section className="min-w-0" aria-labelledby="activity-title">
                <div className="flex flex-wrap items-start justify-between gap-3">
-                 <div className="min-w-0"><p className="text-[11px] font-extrabold uppercase tracking-[0.1em] text-cobalt">Konsistensi</p><h2 id="activity-title" className="mt-1 text-xl font-[900] text-ink sm:text-2xl">Aktivitas 8 minggu</h2></div>
+                 <h2 id="activity-title" className="text-xl font-[900] text-ink sm:text-2xl">Aktivitas 8 minggu</h2>
                  <span className="flex items-center gap-1.5 rounded-full bg-ice px-2.5 py-1.5 text-xs font-extrabold text-sapphire"><CalendarDays className="size-3.5" /> {dashboard.stats.streak} hari streak</span>
                </div>
                <ol className="mt-5 grid max-w-lg grid-cols-14 gap-1 sm:gap-1.5" aria-label="Kalender aktivitas 8 minggu">
@@ -78,14 +75,13 @@ export function ProfileView({ dashboard }: { dashboard: DashboardData }) {
             </section>
 
             <section className="min-w-0" aria-labelledby="achievement-title">
-              <div className="flex flex-wrap items-end justify-between gap-2"><div><p className="text-[11px] font-extrabold uppercase tracking-[0.1em] text-cobalt">Milestone</p><h2 id="achievement-title" className="mt-1 text-xl font-[900] text-ink sm:text-2xl">Pencapaian</h2></div><span className="text-xs font-bold text-muted">{badges.filter((badge) => badge.unlocked).length} terbuka</span></div>
+               <div className="flex flex-wrap items-end justify-between gap-2"><h2 id="achievement-title" className="text-xl font-[900] text-ink sm:text-2xl">Pencapaian</h2><span className="text-xs font-bold text-muted">{badges.filter((badge) => badge.unlocked).length} terbuka</span></div>
               <div className="mt-4 grid min-w-0 grid-cols-2 gap-3">
                 {badges.map((badge) => (
                   <article key={badge.title} className={`min-w-0 rounded-[20px] border p-3.5 sm:p-4 ${badge.unlocked ? "border-line bg-white" : "border-[#E2E9F0] bg-[#F6F8FB]"}`}>
                     <span className={`grid size-10 place-items-center rounded-2xl ${badge.unlocked ? badge.color : "bg-[#E2E8EF] text-[#8795A6]"}`}><badge.icon className="size-5" /></span>
                     <h3 className="mt-3 text-sm font-[900] leading-5 text-ink [overflow-wrap:anywhere]">{badge.title}</h3>
-                    <p className="mt-1 text-xs leading-5 text-copy">{badge.copy}</p>
-                    <span className={`mt-3 inline-flex items-center gap-1 text-[11px] font-extrabold ${badge.unlocked ? "text-success" : "text-muted"}`}>{badge.unlocked ? <Check className="size-3.5" /> : null}{badge.unlocked ? "Terbuka" : "Belum terbuka"}</span>
+                    <span className={`mt-3 inline-flex items-center gap-1 text-[11px] font-extrabold ${badge.unlocked ? "text-success" : "text-muted"}`}>{badge.unlocked ? <Check className="size-3.5" /> : null}{badge.unlocked ? "Terbuka" : "Terkunci"}</span>
                   </article>
                 ))}
               </div>
@@ -101,11 +97,6 @@ export function ProfileView({ dashboard }: { dashboard: DashboardData }) {
                   <div className="min-w-0 flex-1"><p className="text-xs font-bold text-muted">{item.label}</p><p className="mt-1 text-sm font-extrabold leading-6 text-ink [overflow-wrap:anywhere]">{item.value}</p></div>
                 </div>
               ))}
-            </div>
-            <div className="mt-4 rounded-[22px] border border-blue-200 bg-ice p-4">
-              <ShieldCheck className="size-5 text-cobalt" />
-              <h3 className="mt-3 text-sm font-[900] text-sapphire">Progresmu tersimpan aman</h3>
-              <p className="mt-2 text-xs leading-5 text-copy">Akun yang sama menjaga jalur, XP, dan streak-mu di perangkat lain.</p>
             </div>
           </aside>
         </div>

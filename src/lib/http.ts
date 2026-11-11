@@ -21,6 +21,24 @@ export function assertJsonRequest(request: NextRequest) {
   return Number.isFinite(length) && length <= 16_384;
 }
 
+export async function readBoundedJson(request: NextRequest) {
+  if (!request.body) return null;
+  const reader = request.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    size += value.byteLength;
+    if (size > 16_384) { await reader.cancel(); throw new RangeError("JSON request exceeds 16 KiB"); }
+    chunks.push(value);
+  }
+  const bytes = new Uint8Array(size);
+  let offset = 0;
+  for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.length; }
+  return JSON.parse(new TextDecoder().decode(bytes)) as unknown;
+}
+
 export function isSameOrigin(request: NextRequest) {
   const fetchSite = request.headers.get("sec-fetch-site");
   if (fetchSite && fetchSite !== "same-origin" && fetchSite !== "none") return false;

@@ -10,6 +10,7 @@ import { consumeRateLimit } from "@/lib/rate-limit";
 import { LessonSession } from "@/models/lesson-session";
 
 export const runtime = "nodejs";
+export const maxDuration = 300;
 
 const lessonRequestSchema = z
   .object({
@@ -70,10 +71,17 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     if (error instanceof AiServiceError) {
       console.warn("AI lesson generation failed:", { kind: error.kind, status: error.status, reason: error.message });
-      const status = error.kind === "timeout" ? 504 : 502;
-      const code = error.kind === "timeout" ? "AI_TIMEOUT" : error.kind === "upstream" ? "AI_UPSTREAM_UNAVAILABLE" : "AI_INVALID_RESPONSE";
-      const message = error.kind === "upstream" ? "Layanan AI sedang tidak dapat dihubungi. Coba lagi sebentar." : "AI belum dapat menyusun level yang valid. Coba lagi sebentar.";
-      return problem(status, message, code);
+      const status = error.kind === "budget-exhausted" || error.status === 429 ? 429 : error.kind === "timeout" ? 504 : 502;
+      const code = error.kind === "budget-exhausted" ? "AI_DAILY_TOKEN_LIMIT" : error.status === 429 ? "AI_PROVIDER_RATE_LIMIT" : error.kind === "timeout" ? "AI_TIMEOUT" : error.kind === "upstream" ? "AI_UPSTREAM_UNAVAILABLE" : "AI_INVALID_RESPONSE";
+      const message = error.kind === "budget-exhausted" ? "Kuota token AI harian sudah habis. Coba lagi setelah kuota reset." : status === 429 ? "Provider AI sedang membatasi request. Coba lagi sebentar." : error.kind === "upstream" ? "Layanan AI sedang tidak dapat dihubungi. Coba lagi sebentar." : "AI belum dapat menyusun level yang valid. Coba lagi sebentar.";
+      const response = problem(status, message, code);
+      if (status === 429) {
+        const seconds = error.kind === "budget-exhausted"
+          ? Math.ceil((Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate() + 1) - Date.now()) / 1000)
+          : 60;
+        response.headers.set("Retry-After", String(Math.max(1, seconds)));
+      }
+      return response;
     }
     console.error("Lesson generation failed:", error instanceof Error ? error.name : "UnknownError");
     return problem(503, "Level belum dapat dibuat. Coba lagi sebentar.", "SERVICE_UNAVAILABLE");

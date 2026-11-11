@@ -37,7 +37,7 @@ const nextConfig: NextConfig = {
   allowedDevOrigins: ["localhost", "127.0.0.1"],
   poweredByHeader: false,
   reactStrictMode: true,
-  serverExternalPackages: ["mongoose"],
+  serverExternalPackages: ["mongoose", "pdf-parse", "mammoth", "yauzl"],
   async headers() {
     return [
       {

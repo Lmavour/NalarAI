@@ -3,11 +3,10 @@
 import { Check, Lightbulb, X } from "lucide-react";
 import { useId, type KeyboardEvent, type Ref } from "react";
 import type { AnswerResult, LessonQuestion } from "@/types/learning";
+import { SourceLinks } from "@/components/learning/source-links";
 
 export type QuestionCardProps = {
   question: LessonQuestion;
-  number: number;
-  total: number;
   selectedOptionId: string | null;
   onSelect: (optionId: string) => void;
   onHint: () => void;
@@ -16,7 +15,7 @@ export type QuestionCardProps = {
   headingRef?: Ref<HTMLHeadingElement>;
 };
 
-export function QuestionCard({ question, number, total, selectedOptionId, onSelect, onHint, feedback, disabled = false, headingRef }: QuestionCardProps) {
+export function QuestionCard({ question, selectedOptionId, onSelect, onHint, feedback, disabled = false, headingRef }: QuestionCardProps) {
   const headingId = useId();
   const locked = disabled || Boolean(feedback);
 
@@ -32,14 +31,13 @@ export function QuestionCard({ question, number, total, selectedOptionId, onSele
 
   return (
     <section data-question-card className="learn-card min-w-0 p-4 sm:p-6 lg:p-7">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="rounded-full bg-blue-50 px-3 py-1.5 text-[11px] font-black tracking-wide text-blue-700">SOAL {number} / {total}</span>
+      <div className="flex justify-end">
         <button type="button" onClick={onHint} disabled={locked} aria-haspopup="dialog" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3 text-xs font-extrabold text-amber-900 transition hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-50">
           <Lightbulb className="size-4 shrink-0" aria-hidden="true" /> Petunjuk
         </button>
       </div>
       <h1 id={headingId} ref={headingRef} tabIndex={-1} className="mt-4 text-xl font-black leading-snug tracking-[-0.025em] text-ink [overflow-wrap:anywhere] lg:text-2xl">{question.prompt}</h1>
-      <p className="mt-2 text-xs font-semibold leading-5 text-slate-500">Pilih satu jawaban yang paling tepat.</p>
+      <SourceLinks refs={question.sourceRefs} className="mt-3" />
 
       <div role="radiogroup" aria-labelledby={headingId} className="mt-5 grid min-w-0 gap-3">
         {question.options.map((option, index) => {

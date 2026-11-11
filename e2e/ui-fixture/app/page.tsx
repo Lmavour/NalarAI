@@ -1,8 +1,10 @@
 import { LearningShell } from "../../../src/components/learning/learning-shell";
+import { DatabaseUnavailable } from "../../../src/components/database-unavailable";
 import { dashboardFixture } from "../../fixtures/learning";
 
-export default async function FixturePage({ searchParams }: { searchParams: Promise<{ completed?: string; new?: string; preMastery?: string; streak?: string }> }) {
-  const { completed, new: newLearner, preMastery, streak } = await searchParams;
+export default async function FixturePage({ searchParams }: { searchParams: Promise<{ completed?: string; new?: string; preMastery?: string; streak?: string; database?: string }> }) {
+  const { completed, new: newLearner, preMastery, streak, database } = await searchParams;
+  if (database === "unavailable") return <DatabaseUnavailable />;
   const completedStageIds = completed === "1"
     ? ["foundation", "core-concept", "connections", "application", "mastery"]
     : preMastery === "1"

@@ -2,7 +2,7 @@ import { defineConfig } from "@playwright/test";
 import baseConfig from "./playwright.config";
 
 export default defineConfig(baseConfig, {
-  testMatch: "**/app-responsive.spec.ts",
+  testMatch: ["**/app-responsive.spec.ts", "**/db-unavailable-ui.spec.ts", "**/document-learning-ui.spec.ts", "**/document-ocr-ui.spec.ts"],
   testIgnore: [],
   use: {
     baseURL: "http://127.0.0.1:3010",

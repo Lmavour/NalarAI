@@ -4,6 +4,7 @@ import { connectToDatabase } from "@/lib/db";
 import { refreshHearts, toDashboardStats } from "@/lib/dashboard";
 import { Gamification } from "@/models/gamification";
 import { UserProgress } from "@/models/user-progress";
+import { StudyDocument } from "@/models/study-document";
 import type { DashboardProgress } from "@/types/learning";
 
 type AwardLessonInput = {
@@ -105,4 +106,35 @@ export async function awardCompletedLesson(input: AwardLessonInput) {
     stats: toDashboardStats(updatedStats),
     progress,
   };
+}
+
+export async function awardDocumentLesson(input: AwardLessonInput & { documentId: string }) {
+  await connectToDatabase();
+  const userId = new Types.ObjectId(input.userId);
+  const document = await StudyDocument.findOne({ _id: input.documentId, userId, status: "ready" }).lean();
+  if (!document) throw new Error("Document is unavailable");
+  const today = utcDate();
+  const yesterday = utcDate(-1);
+  await UserProgress.updateOne({ userId }, { $setOnInsert: { userId }, $addToSet: { activityDates: today } }, { upsert: true, setDefaultsOnInsert: true });
+  await refreshHearts(input.userId);
+  const correct = Math.max(0, Math.min(input.totalQuestions, input.correctCount));
+  const wrong = input.totalQuestions - correct;
+  const xp = 20 + correct * 10;
+  const score = Math.round(correct / input.totalQuestions * 100);
+  const streak = { $cond: [{ $eq: ["$lastActivityDate", today] }, "$streak", { $cond: [{ $eq: ["$lastActivityDate", yesterday] }, { $add: ["$streak", 1] }, 1] }] };
+
+  // The first reward for this file hash and its receipt are committed in one stats write.
+  const awarded = await Gamification.findOneAndUpdate({ userId, "documentAwards.hash": { $ne: document.sha256 }, $expr: { $lt: [{ $size: { $ifNull: ["$documentAwards", []] } }, 10000] } }, [
+    { $set: { xp: { $add: ["$xp", xp] }, lessonsCompleted: { $add: ["$lessonsCompleted", 1] }, hearts: { $max: [0, { $subtract: ["$hearts", wrong] }] }, heartsUpdatedAt: wrong > 0 ? new Date() : "$heartsUpdatedAt", streak, lastActivityDate: today, documentAwards: { $concatArrays: [{ $ifNull: ["$documentAwards", []] }, [{ hash: document.sha256, sessionId: input.lessonSessionId, xpEarned: xp, score }]] } } },
+    { $set: { longestStreak: { $max: ["$longestStreak", "$streak"] }, league: { $cond: [{ $gte: ["$xp", 5000] }, "Diamond", "Sapphire"] } } },
+  ], { returnDocument: "after", updatePipeline: true }).select("+documentAwards").lean();
+  if (!awarded) {
+    await Gamification.updateOne({ userId }, [{ $set: { streak, lastActivityDate: today } }, { $set: { longestStreak: { $max: ["$longestStreak", "$streak"] } } }], { updatePipeline: true });
+  }
+  const stats = awarded ?? await Gamification.findOne({ userId }).select("+documentAwards").lean();
+  const progress = await UserProgress.findOne({ userId }).lean();
+  if (!stats || !progress) throw new Error("Document reward state is unavailable");
+  await StudyDocument.updateOne({ _id: input.documentId, userId, status: "ready" }, { $set: { completedAt: new Date() } });
+  const receipt = (stats.documentAwards ?? []).find((item) => item.hash === document.sha256 && item.sessionId === input.lessonSessionId);
+  return { xpEarned: receipt?.xpEarned ?? 0, score, stats: toDashboardStats(stats), progress: { topic: progress.topic, completedStageIds: [...progress.completedStageIds], activityDates: [...progress.activityDates] } };
 }

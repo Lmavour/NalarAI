@@ -7,6 +7,7 @@ import type { CharacterName } from "@/components/character-avatar";
 import { MascotCompanion } from "@/components/learning/mascot-companion";
 import { useReducedMotionPreference } from "@/lib/use-reduced-motion";
 import type { LessonMaterial } from "@/types/learning";
+import { SourceLinks } from "@/components/learning/source-links";
 
 type HintSheetProps = {
   material: LessonMaterial[];
@@ -67,13 +68,13 @@ export function HintSheet({ material, questionId, character = "nenek_sri", onClo
           <button ref={closeRef} type="button" onClick={onClose} aria-label="Tutup petunjuk" className="grid size-12 shrink-0 place-items-center rounded-full bg-slate-50 text-slate-600 hover:bg-slate-100"><X className="size-5" aria-hidden="true" /></button>
         </header>
         <div tabIndex={0} aria-label="Materi petunjuk" className="min-h-0 overflow-y-auto overscroll-contain px-5 pb-5">
-          <MascotCompanion character={character} emotion="thinking" message="Coba hubungkan pilihanmu dengan inti materi ini." eventKey={`hint:${questionId}`} context="hint" compact className="my-3" />
-          <p className="mb-3 text-xs font-bold leading-5 text-slate-500">Ringkasan materi yang sudah kamu baca. Pilihan jawaban tetap milikmu.</p>
+          <MascotCompanion character={character} emotion="thinking" message="" eventKey={`hint:${questionId}`} context="hint" compact minimal className="my-2" />
           <ul className="grid gap-3">
             {material.map((card) => (
               <li key={card.id} className="rounded-2xl border border-blue-100 bg-blue-50/60 p-4">
                 <p className="text-xs font-black text-blue-800 [overflow-wrap:anywhere]">{card.title}</p>
                 <p className="mt-2 text-sm leading-6 text-slate-700 [overflow-wrap:anywhere]">{card.keyTakeaway}</p>
+                <SourceLinks refs={card.sourceRefs} className="mt-3" />
               </li>
             ))}
           </ul>

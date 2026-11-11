@@ -5,8 +5,11 @@ import { getAuthSession } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/db";
 import { assertJsonRequest, isSameOrigin, problem } from "@/lib/http";
 import { consumeRateLimit } from "@/lib/rate-limit";
-import { awardCompletedLesson } from "@/lib/rewards";
+import { awardCompletedLesson, awardDocumentLesson } from "@/lib/rewards";
+import { syncDocumentQuizReview } from "@/lib/document-review-sync";
 import { LessonSession } from "@/models/lesson-session";
+import { StudyDocument } from "@/models/study-document";
+import { answerStorageUpdate } from "@/lib/lesson-answer-policy";
 import type { AnswerResult, DashboardProgress } from "@/types/learning";
 
 export const runtime = "nodejs";
@@ -51,6 +54,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
       .select("+answerKey +completionReceipt")
       .lean();
     if (!lesson) return problem(404, "Sesi pelajaran tidak ditemukan.", "NOT_FOUND");
+    if (lesson.documentId && !await StudyDocument.exists({ _id: lesson.documentId, userId, status: "ready" })) return problem(404, "Dokumen sumber sudah tidak tersedia.", "DOCUMENT_NOT_FOUND");
     if (lesson.expiresAt <= new Date()) return problem(410, "Sesi pelajaran sudah berakhir. Buat level baru.", "LESSON_EXPIRED");
 
     const question = lesson.questions.find((item) => item.id === parsed.data.questionId);
@@ -74,8 +78,8 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
           status: "active",
           "answers.questionId": { $ne: parsed.data.questionId },
         },
-        { $push: { answers: nextAnswer } },
-        { returnDocument: "after" },
+        answerStorageUpdate(nextAnswer, Boolean(lesson.documentId)),
+        { returnDocument: "after", updatePipeline: Boolean(lesson.documentId) },
       )
         .select("+answerKey +completionReceipt")
         .lean();
@@ -93,17 +97,19 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
 
     if (!lesson || !submitted) return problem(409, "Jawaban tidak dapat disimpan. Coba lagi.", "ANSWER_CONFLICT");
     const completed = lesson.answers.length === lesson.questions.length;
+    if (completed && lesson.documentId) await syncDocumentQuizReview(auth.userId, id);
     let receipt = receiptFrom(lesson.completionReceipt);
 
     if (completed && !receipt) {
-      const reward = await awardCompletedLesson({
+      const input = {
         userId: auth.userId,
         lessonSessionId: id,
         stageId: lesson.stageId,
         topic: lesson.topic,
         correctCount: lesson.answers.filter((answer) => answer.correct).length,
         totalQuestions: lesson.questions.length,
-      });
+      };
+      const reward = lesson.documentId ? await awardDocumentLesson({ ...input, documentId: String(lesson.documentId) }) : await awardCompletedLesson(input);
       receipt = {
         award: {
           xpEarned: reward.xpEarned,
@@ -131,6 +137,8 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
         correct: submitted.correct,
         correctOptionId: answerKey.correctOptionId,
         explanation: answerKey.explanation,
+        submittedOptionId: submitted.optionId,
+        ...(answerKey.sourceRefs ? { sourceRefs: answerKey.sourceRefs } : {}),
         completed,
         ...(receipt ? { award: receipt.award, progress: receipt.progress } : {}),
       },

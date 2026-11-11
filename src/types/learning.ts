@@ -1,3 +1,5 @@
+import type { SourceReference } from "@/types/documents";
+
 export type LeagueTier = "Bronze" | "Silver" | "Sapphire" | "Diamond";
 
 export type DashboardStats = {
@@ -30,6 +32,7 @@ export type LessonMaterial = {
   title: string;
   content: string;
   keyTakeaway: string;
+  sourceRefs?: SourceReference[];
 };
 
 export type LessonOption = {
@@ -41,6 +44,8 @@ export type LessonQuestion = {
   id: string;
   prompt: string;
   options: LessonOption[];
+  materialIndex?: number;
+  sourceRefs?: SourceReference[];
 };
 
 export type LessonSessionDto = {
@@ -52,6 +57,8 @@ export type LessonSessionDto = {
   material: LessonMaterial[];
   questions: LessonQuestion[];
   expiresAt: string;
+  documentId?: string;
+  documentName?: string;
 };
 
 export type LessonAward = {
@@ -66,6 +73,8 @@ export type AnswerResult = {
   correct: boolean;
   correctOptionId: string;
   explanation: string;
+  sourceRefs?: SourceReference[];
+  submittedOptionId?: string;
   completed: boolean;
   award?: LessonAward;
   progress?: DashboardProgress;

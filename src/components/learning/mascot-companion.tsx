@@ -18,6 +18,8 @@ export type CompanionState = {
 
 export type MascotCompanionProps = CompanionState & {
   compact?: boolean;
+  floating?: boolean;
+  minimal?: boolean;
   className?: string;
 };
 
@@ -40,7 +42,7 @@ const EMOTION_LABELS: Record<CompanionEmotion, string> = {
 const CONFETTI_COLORS = ["#3b82f6", "#06b6d4", "#fbbf24", "#34d399", "#f472b6"];
 
 /** A fixed-size stage lets expressions crossfade without shifting the lesson. */
-export function MascotCompanion({ character, emotion, message, eventKey, context = "companion", celebrate = false, compact = false, className = "" }: MascotCompanionProps) {
+export function MascotCompanion({ character, emotion, message, eventKey, context = "companion", celebrate = false, compact = false, floating = false, minimal = false, className = "" }: MascotCompanionProps) {
   const reduceMotion = useReducedMotionPreference();
   const expression = EXPRESSIONS[emotion];
   const { displayName } = CHARACTER_META[character];
@@ -57,9 +59,9 @@ export function MascotCompanion({ character, emotion, message, eventKey, context
       data-character-context={context}
       data-reaction-key={reactionKey}
       aria-label={`Companion ${displayName}`}
-      className={`min-w-0 ${compact ? "flex items-center gap-2.5" : "flex flex-col items-center text-center"} ${className}`}
+      className={`min-w-0 ${minimal ? "flex justify-center" : floating ? "flex items-center gap-2" : compact ? "flex items-center gap-2.5" : "flex flex-col items-center text-center"} ${className}`}
     >
-      <div className={`relative isolate shrink-0 overflow-hidden ${compact ? "size-24" : "size-40"}`}>
+      <div data-companion-stage className={`relative isolate shrink-0 overflow-hidden ${floating ? "size-14" : minimal ? compact ? "size-24" : "size-32" : compact ? "size-24" : "size-40"}`}>
         <div className="absolute inset-[18%] rounded-full bg-gradient-to-br from-blue-100 to-cyan-50" aria-hidden="true" />
         <div role="img" aria-label={`${displayName}, ${EMOTION_LABELS[emotion]}`} className="absolute inset-0">
           <AnimatePresence initial={false} mode="sync">
@@ -109,10 +111,12 @@ export function MascotCompanion({ character, emotion, message, eventKey, context
         ) : null}
       </div>
 
-      <div className={`min-w-0 ${compact ? "flex-1 rounded-2xl rounded-bl-md border border-blue-100 bg-white px-3 py-2.5" : "mt-1 w-full rounded-3xl border border-blue-100 bg-blue-50/60 px-3 py-4"}`}>
-        <p className="text-[10px] font-black uppercase tracking-[0.14em] text-blue-700">{displayName}</p>
-        <p className="mt-1 text-[13px] font-bold leading-5 text-slate-600 [overflow-wrap:anywhere]">{message}</p>
-      </div>
+      {!minimal ? (
+        <div data-companion-bubble className={`min-w-0 ${floating ? "flex-1 rounded-2xl rounded-bl-md border border-blue-100 bg-blue-50/70 px-2.5 py-1.5 text-left" : compact ? "flex-1 rounded-2xl rounded-bl-md border border-blue-100 bg-white px-3 py-2.5" : "mt-1 w-full rounded-3xl border border-blue-100 bg-blue-50/60 px-3 py-4"}`}>
+          <p className={`${floating ? "text-[9px]" : "text-[10px]"} font-black uppercase tracking-[0.14em] text-blue-700`}>{displayName}</p>
+          <p className={`${floating ? "mt-0.5 overflow-hidden text-xs leading-4 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]" : "mt-1 text-[13px] leading-5"} font-bold text-slate-600 [overflow-wrap:anywhere]`}>{message}</p>
+        </div>
+      ) : null}
     </section>
   );
 }

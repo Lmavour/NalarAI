@@ -1,16 +1,18 @@
 "use client";
 
-import { Flame, Heart, Home, Menu, Sparkles, Trophy, UserRound, X, Zap } from "lucide-react";
+import { FileText, Flame, Heart, Home, Menu, Repeat2, Trophy, UserRound, X, Zap } from "lucide-react";
 import { useEffect, useId, useRef, useState, type ReactNode, type Ref } from "react";
 import { Brand } from "@/components/brand";
 import { MascotCompanion, type CompanionState } from "@/components/learning/mascot-companion";
 import { useHydrated } from "@/lib/use-hydrated";
 import type { DashboardData, DashboardStats } from "@/types/learning";
 
-export type LearnTab = "path" | "league" | "profile";
+export type LearnTab = "path" | "documents" | "review" | "league" | "profile";
 
 const NAV_ITEMS = [
   { id: "path", label: "Jalur", icon: Home },
+  { id: "documents", label: "Materi", icon: FileText },
+  { id: "review", label: "Ulang", icon: Repeat2 },
   { id: "league", label: "Liga", icon: Trophy },
   { id: "profile", label: "Profil", icon: UserRound },
 ] as const;
@@ -90,23 +92,24 @@ export function LearnLayout({ children, user, stats, activeTab, onNavigate, comp
       <a href={`#${mainId}`} className="sr-only z-[200] rounded-full bg-blue-700 px-4 py-3 font-bold text-white focus:not-sr-only focus:fixed focus:left-4 focus:top-4">Lewati ke konten utama</a>
 
       {!header ? (
-        <header ref={menuRef} className="relative z-40 shrink-0 border-b border-slate-100 bg-white px-[max(16px,var(--safe-left))] pb-3 pr-[max(16px,var(--safe-right))] pt-[max(8px,var(--safe-top))] md:hidden">
-          <div className="mb-2 flex min-w-0 items-center justify-between gap-3">
-            <Brand compact href="/app" />
-            <button ref={menuTriggerRef} type="button" onClick={() => setMenuOpen((open) => !open)} disabled={!hydrated} aria-label={menuOpen ? "Tutup menu" : "Buka menu"} aria-expanded={menuOpen} aria-controls="app-mobile-menu" className="grid size-12 place-items-center rounded-full border border-slate-100 bg-slate-50 text-slate-600 disabled:cursor-wait">
+        <header ref={menuRef} data-mobile-topbar-shell className="relative z-40 shrink-0 px-[max(12px,var(--safe-left))] pb-2 pr-[max(12px,var(--safe-right))] pt-[max(8px,var(--safe-top))] md:hidden">
+          <div data-mobile-topbar className="flex min-w-0 items-center gap-2 rounded-[24px] border border-white/90 bg-white/90 p-1.5 shadow-[0_10px_30px_rgba(16,58,114,0.10)] backdrop-blur-xl">
+            <div data-mobile-companion data-floating-companion aria-live="polite" className="relative min-w-0 flex-1">
+              <MascotCompanion {...companion} compact floating />
+              <span aria-label={`Hearts: ${stats.hearts}`} className="absolute left-10 top-0 inline-flex h-5 min-w-5 items-center justify-center gap-0.5 rounded-full border-2 border-white bg-rose-500 px-1 text-[9px] font-black leading-none text-white shadow-sm"><Heart className="size-2.5 fill-white" aria-hidden="true" />{stats.hearts}</span>
+            </div>
+            <button ref={menuTriggerRef} type="button" onClick={() => setMenuOpen((open) => !open)} disabled={!hydrated} aria-label={menuOpen ? "Tutup menu" : "Buka menu"} aria-expanded={menuOpen} aria-controls="app-mobile-menu" className={`grid size-12 shrink-0 place-items-center rounded-[18px] transition disabled:cursor-wait ${menuOpen ? "bg-cobalt text-white shadow-[0_5px_14px_rgba(23,107,255,0.28)]" : "bg-slate-50 text-slate-600 hover:bg-blue-50 hover:text-cobalt"}`}>
               {menuOpen ? <X className="size-5" aria-hidden="true" /> : <Menu className="size-5" aria-hidden="true" />}
             </button>
           </div>
-          <LearnerStats stats={stats} compact />
-          {menuOpen ? <div id="app-mobile-menu" className="absolute inset-x-4 top-full mt-2 max-h-[55dvh] overflow-y-auto rounded-3xl border border-slate-200 bg-white p-3 shadow-lg">{accountActions}</div> : null}
+          {menuOpen ? <div id="app-mobile-menu" className="absolute right-[max(12px,var(--safe-right))] top-full mt-1 w-[min(280px,calc(100vw-24px))] max-h-[55dvh] overflow-y-auto rounded-[24px] border border-slate-200 bg-white/95 p-3 shadow-float backdrop-blur-xl"><LearnerStats stats={stats} compact /><div className="mt-3">{accountActions}</div></div> : null}
         </header>
       ) : null}
 
       <div className="learn-grid" data-learn-grid>
         <aside data-learn-navigation className="learn-navigation hidden min-h-0 min-w-0 flex-col overflow-y-auto overscroll-contain md:flex">
           <Brand compact href="/app" />
-          <p className="mb-3 mt-10 px-3 text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Ruang belajarmu</p>
-          <nav aria-label="Navigasi aplikasi" className="grid gap-2">
+          <nav aria-label="Navigasi aplikasi" className="mt-10 grid gap-2">
             {NAV_ITEMS.map(({ id, label, icon: Icon }) => (
               <button key={id} type="button" onClick={() => navigate(id)} disabled={navigationDisabled || !hydrated} aria-current={activeTab === id ? "page" : undefined} className={`flex min-h-12 items-center gap-3 rounded-2xl px-3 text-sm font-extrabold transition disabled:cursor-wait ${activeTab === id ? "bg-blue-50 text-blue-700" : "text-slate-500 hover:bg-slate-50 hover:text-blue-700"}`}>
                 <Icon className="size-5 shrink-0" aria-hidden="true" />{label}
@@ -114,20 +117,13 @@ export function LearnLayout({ children, user, stats, activeTab, onNavigate, comp
             ))}
           </nav>
           <div className="mt-auto pt-8">{accountActions}</div>
-          <p className="mt-6 px-2 text-[10px] font-semibold leading-5 text-slate-400">Sedikit setiap hari.<br />Bertumbuh tanpa henti.</p>
         </aside>
 
-        <main id={mainId} data-learn-main className="flex min-h-0 min-w-0 flex-col">
-          {header ? <header className="learn-session-header shrink-0">{header}</header> : (
-            <header className="hidden shrink-0 items-center justify-between gap-3 px-1 pb-4 pt-1 md:flex">
-              <div className="min-w-0"><p className="text-xs font-extrabold text-slate-500">Selamat datang kembali</p><p className="mt-0.5 truncate text-sm font-black text-ink">{user.displayName}</p></div>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-100 bg-white px-3 py-2 text-[10px] font-black text-blue-700"><Sparkles className="size-3.5" aria-hidden="true" /> Ruang fokus</span>
-            </header>
-          )}
+        <main id={mainId} data-learn-main className="relative flex min-h-0 min-w-0 flex-col">
+          {header ? <header className="learn-session-header shrink-0">{header}</header> : null}
           <div ref={contentRef} data-learn-scroll tabIndex={-1} className="learn-scroll min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-contain">
             <div className="mx-auto w-full min-w-0 max-w-[760px]">
               {notice}
-              <div data-mobile-companion className="mb-4 md:hidden"><MascotCompanion {...companion} compact /></div>
               {children}
             </div>
           </div>
@@ -142,18 +138,14 @@ export function LearnLayout({ children, user, stats, activeTab, onNavigate, comp
             </div>
             <LearnerStats stats={stats} />
           </section>
-          <section className="learn-card mt-4 p-3 lg:p-4">
-            <p className="mb-1 flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-slate-500"><span className="size-1.5 rounded-full bg-emerald-500" /> Teman belajarmu</p>
-            <MascotCompanion {...companion} />
-          </section>
-          <p className="px-3 py-4 text-center text-[11px] font-semibold leading-5 text-slate-500">Fokus pada satu langkah.<br />Progres kecil tetap berarti.</p>
+          <section className="learn-card mt-4 p-3 lg:p-4"><MascotCompanion {...companion} /></section>
         </aside>
       </div>
 
-      <nav data-learn-bottom-nav aria-label="Navigasi aplikasi seluler" className="z-30 shrink-0 border-t border-slate-100 bg-white px-[max(12px,var(--safe-left))] pb-[max(6px,var(--safe-bottom))] pr-[max(12px,var(--safe-right))] pt-1.5 md:hidden">
-        <div className="mx-auto grid max-w-md grid-cols-3 gap-2">
+      <nav data-learn-bottom-nav aria-label="Navigasi aplikasi seluler" className="z-30 shrink-0 bg-gradient-to-t from-white via-white/95 to-transparent px-[max(12px,var(--safe-left))] pb-[max(8px,var(--safe-bottom))] pr-[max(12px,var(--safe-right))] pt-2 md:hidden">
+        <div data-mobile-dock className="mx-auto grid max-w-md grid-cols-5 gap-0 rounded-[26px] border border-white bg-white/95 p-1.5 shadow-[0_12px_32px_rgba(16,58,114,0.14)] backdrop-blur-xl">
           {NAV_ITEMS.map(({ id, label, icon: Icon }) => (
-            <button key={id} type="button" onClick={() => navigate(id)} disabled={navigationDisabled || !hydrated} aria-current={activeTab === id ? "page" : undefined} className={`flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-2xl text-[10px] font-extrabold transition disabled:cursor-wait ${activeTab === id ? "bg-blue-50 text-blue-700" : "text-slate-500 hover:bg-slate-50"}`}>
+            <button key={id} type="button" onClick={() => navigate(id)} disabled={navigationDisabled || !hydrated} aria-current={activeTab === id ? "page" : undefined} className={`flex min-h-14 min-w-12 flex-col items-center justify-center gap-0.5 rounded-[19px] text-[10px] font-extrabold transition disabled:cursor-wait ${activeTab === id ? "bg-gradient-to-br from-blue-600 to-cyan-600 text-white shadow-[0_6px_16px_rgba(23,107,255,0.24)]" : "text-slate-500 hover:bg-slate-50 hover:text-cobalt"}`}>
               <Icon className="size-5" aria-hidden="true" />{label}
             </button>
           ))}

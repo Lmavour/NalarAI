@@ -19,7 +19,7 @@ if (!isAbsolute(executablePath) || !existsSync(executablePath)) {
 
 export default defineConfig({
   testDir: "./e2e",
-  testIgnore: "**/app-responsive.spec.ts",
+  testIgnore: ["**/app-responsive.spec.ts", "**/db-unavailable-ui.spec.ts", "**/document-learning-ui.spec.ts", "**/document-ocr-ui.spec.ts"],
   timeout: 90_000,
   fullyParallel: false,
   workers: 1,

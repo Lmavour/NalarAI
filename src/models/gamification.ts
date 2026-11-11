@@ -1,5 +1,7 @@
 import { model, models, Schema, type InferSchemaType, type Model } from "mongoose";
 
+const documentAwardSchema = new Schema({ hash: String, sessionId: String, xpEarned: Number, score: Number }, { _id: false });
+
 const gamificationSchema = new Schema(
   {
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
@@ -12,6 +14,7 @@ const gamificationSchema = new Schema(
     lessonsCompleted: { type: Number, required: true, default: 0, min: 0 },
     league: { type: String, enum: ["Bronze", "Silver", "Sapphire", "Diamond"], default: "Sapphire" },
     awardedSessionIds: { type: [String], default: [], select: false },
+    documentAwards: { type: [documentAwardSchema], default: [], select: false },
   },
   { timestamps: true },
 );

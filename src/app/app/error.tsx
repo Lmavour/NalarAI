@@ -11,8 +11,8 @@ export default function AppError({ reset }: { error: Error & { digest?: string }
         <Brand />
         <CharacterAvatar character="gara" expression="thinking" size="lg" className="mx-auto mt-10 size-32" priority />
         <AlertCircle className="mx-auto mt-5 size-7 text-danger" />
-        <h1 className="mt-3 text-3xl font-[950] tracking-tight text-ink">Jalurmu belum dapat dimuat.</h1>
-        <p className="mt-3 leading-7 text-copy">Progresmu tetap aman. Coba muat ulang setelah memastikan koneksi database tersedia.</p>
+        <h1 className="mt-3 text-3xl font-[950] tracking-tight text-ink">Aplikasi belum dapat dimuat.</h1>
+        <p className="mt-3 leading-7 text-copy">Coba lagi sebentar.</p>
         <button type="button" onClick={reset} className="button-primary mt-7 min-h-12"><RefreshCw className="size-5" /> Coba lagi</button>
       </div>
     </main>

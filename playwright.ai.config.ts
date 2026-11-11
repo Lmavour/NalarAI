@@ -7,7 +7,7 @@ if (existsSync(".env")) loadEnvFile(".env");
 // These tests exercise Node transport only; no browser or development server is needed.
 export default defineConfig({
   testDir: "./e2e",
-  testMatch: ["**/ai-content.spec.ts", "**/gemini.spec.ts"],
+  testMatch: ["**/ai-content.spec.ts", "**/gemini.spec.ts", "**/groq.spec.ts", "**/database-live.spec.ts", "**/document-live.spec.ts", "**/document-ocr-live.spec.ts"],
   timeout: 105_000,
   workers: 1,
   fullyParallel: false,

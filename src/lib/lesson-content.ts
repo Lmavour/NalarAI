@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const generatedLessonSchema = z
+export const generatedLessonSchema = z
   .object({
     title: z.string().trim().min(3).max(120),
     overview: z.string().trim().min(20).max(600),
@@ -68,17 +68,21 @@ export const LESSON_RESPONSE_JSON_SCHEMA = {
 } as const;
 
 /** Accept one complete JSON envelope, never prose, multiple blocks, or executable text. */
-export function parseLessonContent(reply: string) {
+export function parseJsonEnvelope(reply: string): unknown {
   const text = reply.trim();
   const fence = /^```(?:json)?[\t ]*\r?\n([\s\S]*?)\r?\n```$/i.exec(text);
   const json = fence ? fence[1].trim() : text;
   if (!json.startsWith("{") || !json.endsWith("}")) throw new Error("AI did not return a JSON object");
-  return generatedLessonSchema.parse(JSON.parse(json) as unknown);
+  return JSON.parse(json) as unknown;
+}
+
+export function parseLessonContent(reply: string) {
+  return generatedLessonSchema.parse(parseJsonEnvelope(reply));
 }
 
 export const LESSON_SYSTEM_PROMPT = "You are NalarAI's secure Indonesian learning-content engine. Follow the requested schema exactly, return only JSON, teach accurately, and never include HTML, URLs, personal data, Markdown, or additional keys.";
 
-export function buildLessonPrompt(topic: string, stageTitle: string) {
+export function buildLessonPrompt(topic: string, stageTitle: string, compact = false) {
   return `Create one bite-sized lesson for the topic "${topic}" at the stage "${stageTitle}".
 Write all learner-facing text in clear, friendly Indonesian. Teach accurately, use one relatable analogy, and avoid unsupported claims.
 
@@ -87,9 +91,9 @@ Use exactly this shape:
 {"title":"string","overview":"string","estimatedMinutes":6,"material":[{"title":"string","content":"string","keyTakeaway":"string"}],"quiz":[{"question":"string","options":["string","string","string","string"],"correctAnswer":0,"explanation":"string"}]}
 
 Rules:
-- Provide 3 material items, each focused on one idea and 80-700 characters long.
+- Provide 3 material items, each focused on one idea and ${compact ? "80-180" : "80-700"} characters long.
 - Provide 4 multiple-choice quiz items with exactly 4 distinct options each.
 - correctAnswer must be the zero-based integer index of the correct option.
 - Explanations must teach why the answer is correct, not merely repeat it.
-- Do not include HTML, URLs, personal data, or additional JSON keys.`;
+- Do not include HTML, URLs, personal data, or additional JSON keys.${compact ? "\n- Keep titles under 40 characters, quiz questions under 100, options under 70, takeaways under 100, and explanations under 120. Be concise so the complete JSON fits a 2048-token completion budget." : ""}`;
 }

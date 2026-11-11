@@ -56,6 +56,13 @@ test("Gemini errors are sanitized and preserve only useful classifications", asy
   await expect(requestGeminiLesson({ apiKey, model: DEFAULT_GEMINI_MODEL, prompt, systemInstruction: LESSON_SYSTEM_PROMPT, generateContent: network })).rejects.toMatchObject({ kind: "upstream", message: "Gemini request failed" });
 });
 
+test("Gemini reports input plus output including thinking without double counting", async () => {
+  let usage: unknown;
+  const generateContent = (async () => ({ text: validLesson, usageMetadata: { promptTokenCount: 400, candidatesTokenCount: 1000, thoughtsTokenCount: 200, totalTokenCount: 1600 } } as unknown as GenerateContentResponse)) as GeminiGenerateContent;
+  await requestGeminiLesson({ apiKey, model: DEFAULT_GEMINI_MODEL, prompt, systemInstruction: LESSON_SYSTEM_PROMPT, generateContent, onUsage: (reported) => { usage = reported; } });
+  expect(usage).toEqual({ inputTokens: 400, outputTokens: 1200, totalTokens: 1600 });
+});
+
 test("live Gemini generates a lesson through the production SDK contract", async () => {
   test.skip(process.env.LIVE_AI_SMOKE !== "1", "Explicitly opt in to calling Gemini.");
   test.setTimeout(120_000);

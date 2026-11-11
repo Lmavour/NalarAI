@@ -70,7 +70,9 @@ for (const viewport of [
     await page.goto("/", { waitUntil: "networkidle" });
     await expect(page.getByRole("heading", { name: /Mau belajar apa hari ini/i })).toBeVisible();
     await expect(page.locator('[aria-label^="Hearts:"]:visible')).toBeVisible();
-    await expect(page.locator('[data-companion][data-character="gara"]:visible')).toBeVisible();
+    const pathGuide = page.locator('[data-character-context="path-guide"][data-character="gara"]:visible');
+    await expect(pathGuide).toBeVisible();
+    await expect(pathGuide).toContainText("Siap lanjut?");
     if (viewport.width >= 768) {
       await expect(page.locator("[data-learn-navigation]")).toBeVisible();
       await expect(page.locator("[data-learn-companion]")).toBeVisible();
@@ -90,16 +92,37 @@ for (const viewport of [
     } else {
       await expect(page.locator("[data-learn-bottom-nav]")).toBeVisible();
       await expect(page.locator("[data-learn-navigation]")).not.toBeVisible();
+      const mobileChrome = await page.evaluate(() => {
+        const topbar = document.querySelector("[data-mobile-topbar-shell]")!.getBoundingClientRect();
+        const companion = document.querySelector("[data-mobile-companion]")!.getBoundingClientRect();
+        const grid = document.querySelector("[data-learn-grid]")!.getBoundingClientRect();
+        const nav = document.querySelector("[data-learn-bottom-nav]")!.getBoundingClientRect();
+        const dock = document.querySelector("[data-mobile-dock]")!.getBoundingClientRect();
+        return {
+          topbarHeight: topbar.height,
+          companionBottom: companion.bottom,
+          gridTop: grid.top,
+          gridBottom: grid.bottom,
+          navTop: nav.top,
+          dockInsideNav: dock.top >= nav.top && dock.bottom <= nav.bottom,
+        };
+      });
+      expect(mobileChrome.topbarHeight).toBeLessThanOrEqual(96);
+      expect(mobileChrome.companionBottom).toBeLessThanOrEqual(mobileChrome.gridTop + 1);
+      expect(mobileChrome.gridBottom).toBeLessThanOrEqual(mobileChrome.navTop + 1);
+      expect(mobileChrome.dockInsideNav).toBe(true);
     }
     await checkHorizontalBounds(page, `path-${viewport.width}`);
 
     await page.getByRole("button", { name: "Liga", exact: true }).click();
     await expect(page.getByRole("heading", { name: "Sapphire League", exact: true })).toBeVisible();
+    await expect(page.locator('[data-character-context="league-guide"][data-character="putri"]:visible')).toContainText("Yuk, naik peringkat!");
     await checkHorizontalBounds(page, `league-${viewport.width}`);
 
     await page.getByRole("button", { name: "Profil", exact: true }).click();
     await expect(page.getByRole("heading", { name: "Maya Putri", exact: true })).toBeVisible();
     await expect(page.locator('[data-character-context="long-streak"]')).toHaveCount(0);
+    await expect(page.locator('[data-character-context="profile-guide"][data-character="gara"]:visible')).toContainText("Progresmu hebat.");
     await checkHorizontalBounds(page, `profile-${viewport.width}`);
   });
 }
@@ -157,7 +180,7 @@ for (const viewport of [
       }
     }
     await action.click();
-    await expect(dialog.getByRole("heading", { name: /Kemenangan kecil/i })).toBeVisible();
+    await expect(dialog.getByRole("heading", { name: "Level selesai", exact: true })).toBeVisible();
     await expect(dialog.locator('[data-companion][data-character="putri"]:visible')).toBeVisible();
     await checkHorizontalBounds(page, `completion-${viewport.width}`);
     await dialog.getByRole("button", { name: /Kembali ke jalur/ }).click();
@@ -169,6 +192,7 @@ test("install help fits a short viewport and keeps keyboard focus inside the dia
   await page.setViewportSize({ width: 390, height: 360 });
   await page.goto("/", { waitUntil: "networkidle" });
   await page.getByRole("button", { name: "Buka menu", exact: true }).click();
+  await expect(page.locator("#app-mobile-menu").locator('[aria-label="XP: 124580"]')).toBeVisible();
   await page.locator("#app-mobile-menu").getByRole("button", { name: "Install aplikasi", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Bawa NalarAI ke layar utama" });
   await expect(dialog).toBeVisible();
@@ -263,7 +287,7 @@ test("Gara leads a learner through onboarding and first mastery victory", async 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/?new=1", { waitUntil: "networkidle" });
   await expect(page.getByRole("heading", { name: "Mulai bareng Gara.", exact: true })).toBeVisible();
-  await expect(page.locator('[data-companion][data-character="gara"][data-expression="excited"]:visible')).toBeVisible();
+  await expect(page.locator('[data-character-context="onboarding"][data-character="gara"]:visible')).toContainText("Mau belajar apa hari ini?");
 
   const masteryLesson = { ...singleQuestionLesson, stageId: "mastery", title: "Tantangan akhir" };
   await page.route("**/api/lesson-sessions", (route) => route.fulfill({ status: 201, json: masteryLesson }));
@@ -291,7 +315,7 @@ test("completed path message does not overlap the final node", async ({ page }) 
   await page.setViewportSize({ width: 320, height: 740 });
   await page.goto("/?completed=1", { waitUntil: "networkidle" });
   const node = page.getByRole("button", { name: /^Tantangan akhir/ });
-  const message = page.getByText("Jalur selesai. Ulangi level untuk menguatkan ingatanmu.", { exact: true });
+  const message = page.getByText("Jalur selesai.", { exact: true });
   await node.scrollIntoViewIfNeeded();
   const nodeBox = await node.boundingBox();
   const messageBox = await message.boundingBox();
@@ -317,6 +341,18 @@ test("mobile app controls keep a 48px touch target", async ({ page }) => {
   }));
 
   expect(undersized).toEqual([]);
+});
+
+test("topic guidance appears only after an invalid submit", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/", { waitUntil: "networkidle" });
+  const topic = page.locator("#learning-topic");
+  await expect(page.getByText("Tulis topik yang ingin dipelajari.", { exact: true })).toHaveCount(0);
+  await topic.fill("a");
+  await page.getByRole("button", { name: "Gunakan topik ini", exact: true }).click();
+  await expect(page.locator("#learning-topic-error")).toHaveText("Tulis topik yang ingin dipelajari.");
+  await topic.fill("Fotosintesis");
+  await expect(page.getByText("Tulis topik yang ingin dipelajari.", { exact: true })).toHaveCount(0);
 });
 
 for (const viewport of [{ width: 390, height: 844 }, { width: 740, height: 360 }, { width: 1024, height: 768 }]) {
@@ -375,7 +411,7 @@ test("network errors keep the selection without counting as mistakes or awarding
     const response = page.waitForResponse((reply) => reply.url().endsWith("/answer"));
     await lesson.getByRole("button", { name: "Periksa jawaban", exact: true }).click();
     await response;
-    await expect(lesson.getByRole("alert")).toContainText("Layanan sedang sibuk");
+    await expect(lesson.getByRole("alert")).toContainText("Jawaban belum dapat diperiksa");
     await expect(answer).toHaveAttribute("aria-checked", "true");
     await expect(answer).toBeEnabled();
     await expect(lesson.locator("[data-feedback]")).toHaveCount(0);
@@ -383,7 +419,7 @@ test("network errors keep the selection without counting as mistakes or awarding
   await lesson.getByRole("button", { name: "Periksa jawaban", exact: true }).click();
   await expect(lesson.locator('[data-companion][data-character="rara"]:visible')).toBeVisible();
   await expect(lesson.locator("[data-awarded-xp]")).toHaveCount(0);
-  await expect(lesson.getByText("XP dihitung di akhir level", { exact: true })).toBeVisible();
+  await expect(lesson.getByText("XP dihitung di akhir level", { exact: true })).toHaveCount(0);
   await expect(lesson.locator("[data-confetti]")).toHaveCount(0);
   await lesson.getByRole("button", { name: "Lanjut", exact: true }).evaluate((button: HTMLButtonElement) => {
     button.click();
